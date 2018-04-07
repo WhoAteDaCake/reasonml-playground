@@ -5,7 +5,7 @@
     "react-jsx": 2
   },
   "bs-dev-dependencies": ["@glennsl/bs-jest", "bs-enzyme"],
-  "bs-dependencies": ["reason-react", "bs-webapi"],
+  "bs-dependencies": ["reason-react", "bs-webapi", "bs-fetch", "@glennsl/bs-json"],
   "package-specs": ["es6", "commonjs"],
   "sources": "src",
   "refmt": 3

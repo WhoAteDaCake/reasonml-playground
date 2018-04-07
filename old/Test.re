@@ -24,55 +24,55 @@
    		}
    	}
    } */
-type reqBody = {size: int};
+/* type reqBody = {size: int};
 
-type item = {title: string};
+   type item = {title: string};
 
-let itemParse = json => Json.Decode.{title: json |> field("title", string)};
+   let itemParse = json => Json.Decode.{title: json |> field("title", string)};
 
-module Encode = {
-  let reqBody = body => Json.Encode.(object_([("size", body.size |> int)]));
-};
+   module Encode = {
+     let reqBody = body => Json.Encode.(object_([("size", body.size |> int)]));
+   };
 
-let client =
-  ElasticKit.Client.search("http://demo.searchkit.co/api/movies/_search");
+   let client =
+     ElasticKit.Client.search("http://demo.searchkit.co/api/movies/_search");
 
-let handleResp = resp => {
-  let data: ElasticKit.searchResult(item) =
-    ElasticKit.Decode.searchResult(itemParse, resp);
-  let hits =
-    switch data.hits {
-    | Some(hits) => hits.hits
-    | None => []
-    };
-  List.map(Js.log, hits);
-  ();
-  /* let resp = Option.map(hits => Js.log(take(hits)), data.hits);
+   let handleResp = resp => {
+     let data: ElasticKit.searchResult(item) =
+       ElasticKit.Decode.searchResult(itemParse, resp);
+     let hits =
+       switch data.hits {
+       | Some(hits) => hits.hits
+       | None => []
+       };
+     List.map(Js.log, hits);
      (); */
-  /* switch data.hits {
-     | Some(d) => Js.log(d.hits)
-     | None => ()
-     }; */
-  /* Option.map(
-       hits => {
-         let actual: list(ElasticKit.hit(item)) = hits.hits;
-         Js.log(actual);
-       },
-       data.hits
-     ); */
-  /* Js.log(data.hits); */
-  /* List.map(Js.log, data.hits.hits); */
-  /* switch data.hits {
-     | Some(hits) =>
-       ();
-     | None => Js.log("no hits")
-     }; */
-};
+/* let resp = Option.map(hits => Js.log(take(hits)), data.hits);
+   (); */
+/* switch data.hits {
+   | Some(d) => Js.log(d.hits)
+   | None => ()
+   }; */
+/* Option.map(
+     hits => {
+       let actual: list(ElasticKit.hit(item)) = hits.hits;
+       Js.log(actual);
+     },
+     data.hits
+   ); */
+/* Js.log(data.hits); */
+/* List.map(Js.log, data.hits.hits); */
+/* switch data.hits {
+   | Some(hits) =>
+     ();
+   | None => Js.log("no hits")
+   }; */
+/* };
 
-Js.Promise.(
-  client(Encode.reqBody({size: 2}))
-  |> then_(resp => handleResp(resp) |> resolve)
-);
+   Js.Promise.(
+     client(Encode.reqBody({size: 2}))
+     |> then_(resp => handleResp(resp) |> resolve)
+   ); */
 /* client(Encode.reqBody({size: 1})) */
 /* |> Js.Promise.then_(resp => Js.Promise.resolve(Js.log(resp))); */
 /*

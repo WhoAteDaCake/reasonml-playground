@@ -74,6 +74,8 @@
     ]
   },
   "dependencies": {
+    "@glennsl/bs-json": "^1.2.0",
+    "bs-fetch": "^0.2.1",
     "bs-webapi": "^0.8.3",
     "concurrently": "^3.5.1",
     "vrroom": "github:glennsl/vrroom"
