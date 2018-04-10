@@ -2,6 +2,6 @@ type query =
   | Match_all
   | Bool(boolQuery)
 and boolQuery =
-  | Must(query);
+  | Must(list(query));
 
 type t = query;

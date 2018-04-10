@@ -17,7 +17,8 @@ let rec query: query =
 and boolQuery: boolQuery =
   spec =>
     switch spec {
-    | Must(mustSpec) => Json.Encode.(object_([("must", query(mustSpec))]))
+    | Must(mustSpec) =>
+      Json.Encode.(object_([("must", list(query, mustSpec))]))
     | _ => matchAll
     };
 
