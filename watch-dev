@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
-ls -d ./src/** | entr sh -c 'npm run dev:build'
+ls \
+-d ./src/** \
+-d ./src/elastic/** \
+-d ./src/elastic/query/** \
+| entr sh -c 'npm run dev:build'
