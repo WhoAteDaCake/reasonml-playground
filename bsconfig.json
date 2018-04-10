@@ -7,6 +7,6 @@
   "bs-dev-dependencies": ["@glennsl/bs-jest", "bs-enzyme"],
   "bs-dependencies": ["reason-react", "bs-webapi", "bs-fetch", "@glennsl/bs-json"],
   "package-specs": ["es6", "commonjs"],
-  "sources": "src",
+  "sources": [{ "dir": "src", "subdirs": true }],
   "refmt": 3
 }
