@@ -3,7 +3,10 @@ module Query = ElasticKit.Query;
 let search =
   ElasticKit.Client.search("http://demo.searchkit.co/api/movies/_search");
 
-let myQuery: ElasticKit.Search.t = {size: 2, query: Bool(Must([Match_all]))};
+let myQuery: ElasticKit.Search.t = {
+  size: 3,
+  query: Bool(Must([Match("type", "Movie")]))
+};
 
 /* User definitions */
 type item = {title: string};
