@@ -53,3 +53,4 @@ typings
 .merlin
 /lib/*
 .bsb.lock
+exampleQueries.txt

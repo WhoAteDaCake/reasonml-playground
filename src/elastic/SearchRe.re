@@ -1,4 +1,5 @@
 type t = {
   size: int,
-  query: QueryRe.query
+  query: QueryRe.query,
+  _source: option(list(string))
 };

@@ -4,8 +4,9 @@ let search =
   ElasticKit.Client.search("http://demo.searchkit.co/api/movies/_search");
 
 let myQuery: ElasticKit.Search.t = {
-  size: 3,
-  query: Bool(Must([Match("type", "Movie")]))
+  size: 5,
+  query: Bool(Must([Match("imdbRating", Float(8.9))])),
+  _source: Some(["awards"])
 };
 
 /* User definitions */
