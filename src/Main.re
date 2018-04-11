@@ -6,7 +6,8 @@ let search =
 let myQuery: ElasticKit.Search.t = {
   size: 5,
   query: Bool(Must([Match("imdbRating", Float(8.9))])),
-  _source: Some(["awards"])
+  _source: None,
+  aggs: Some([("writers", Terms("writers.raw", 10))])
 };
 
 /* User definitions */

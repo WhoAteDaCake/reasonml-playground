@@ -4,23 +4,27 @@ type query = QueryRe.t => Js.Json.t;
 
 type boolQuery = QueryRe.boolQuery => Js.Json.t;
 
-/* Temporary */
-let matchAll = Json.Encode.(object_([("match_all", object_([]))]));
+type aggs = AggsRe.aggregation => Js.Json.t;
+
+type aggsMap = AggsRe.t => list((string, Js.Json.t));
+
+type takeRaw = Type.value => Js.Json.t;
+
+let takeRaw: takeRaw =
+  value =>
+    switch value {
+    | String(v) => Json.Encode.string(v)
+    | Float(v) => Json.Encode.float(v)
+    | Int(v) => Json.Encode.int(v)
+    };
 
 let rec query: query =
   spec =>
     switch spec {
     | Match_all => Json.Encode.(object_([("match_all", object_([]))]))
     | Match(key, value) =>
-      let rawValue =
-        switch value {
-        | String(v) => Json.Encode.string(v)
-        | Float(v) => Json.Encode.float(v)
-        | Int(v) => Json.Encode.int(v)
-        };
-      Json.Encode.(object_([("match", object_([(key, rawValue)]))]));
+      Json.Encode.(object_([("match", object_([(key, takeRaw(value))]))]))
     | Bool(boolSpec) => Json.Encode.(object_([("bool", boolQuery(boolSpec))]))
-    | _ => matchAll
     }
 and boolQuery: boolQuery =
   spec => {
@@ -33,7 +37,19 @@ and boolQuery: boolQuery =
     Json.Encode.(object_([(key, list(query, innerSpec))]));
   };
 
-let source = spec => Json.Encode.(nullable(list(string), spec));
+let aggs: aggs =
+  spec =>
+    switch spec {
+    | Terms(key, value) =>
+      Json.Encode.(
+        object_([
+          ("terms", object_([("field", string(key)), ("size", int(value))]))
+        ])
+      )
+    };
+
+let aggsMap: aggsMap =
+  list => List.map(((key, aggregation)) => (key, aggs(aggregation)), list);
 
 let search: search =
   data => {
@@ -45,6 +61,15 @@ let search: search =
       switch data._source {
       | Some(fields) =>
         List.append(list, [("_source", Json.Encode.(fields |> list(string)))])
+      | None => list
+      };
+    let list =
+      switch data.aggs {
+      | Some(aggregations) =>
+        List.append(
+          list,
+          [("aggs", aggsMap(aggregations) |> Json.Encode.object_)]
+        )
       | None => list
       };
     Json.Encode.object_(list);

@@ -1,11 +1,6 @@
-type value =
-  | Float(float)
-  | Int(int)
-  | String(string);
-
 type query =
   | Match_all
-  | Match(string, value)
+  | Match(string, Type.value)
   | Bool(boolQuery)
 and boolQuery =
   | Must(list(query))

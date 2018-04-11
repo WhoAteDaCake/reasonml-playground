@@ -1,5 +1,6 @@
 type t = {
   size: int,
-  query: QueryRe.query,
+  query: QueryRe.t,
+  aggs: option(AggsRe.t),
   _source: option(list(string))
 };

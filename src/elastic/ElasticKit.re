@@ -6,4 +6,6 @@ module Query = QueryRe;
 
 module Search = SearchRe;
 
-module Encode = Encode;
+module Encode = EncodeRe;
+
+module Aggs = AggsRe;
