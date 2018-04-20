@@ -8,6 +8,8 @@ type aggs = AggsRe.aggregation => Js.Json.t;
 
 type aggsMap = AggsRe.t => list((string, Js.Json.t));
 
+type boolAggregation = AggsRe.boolAggregation => Js.Json.t;
+
 type takeRaw = Type.value => Js.Json.t;
 
 let takeRaw: takeRaw =
@@ -37,16 +39,35 @@ and boolQuery: boolQuery =
     Json.Encode.(object_([(key, list(query, innerSpec))]));
   };
 
-let aggs: aggs =
+/* Aggregations */
+let rec aggs: aggs =
   spec =>
     switch spec {
     | Terms(key, value) =>
       Json.Encode.(
         object_([
-          ("terms", object_([("field", string(key)), ("size", int(value))]))
+          (
+            "terms",
+            object_([("field", string(key)), ("size", takeRaw(value))])
+          )
         ])
       )
-    };
+    | Term(key, value) =>
+      Json.Encode.(object_([("term", object_([(key, takeRaw(value))]))]))
+    | Filter(agg) => Json.Encode.(object_([("filter", aggs(agg))]))
+    | Bool(boolAgg) =>
+      Json.Encode.(object_([("bool", boolAggregation(boolAgg))]))
+    }
+and boolAggregation: boolAggregation =
+  spec => {
+    let (key, innerSpec) =
+      switch spec {
+      | Must(innerSpec) => ("must", innerSpec)
+      | Should(innerSpec) => ("should", innerSpec)
+      | Must_not(innerSpec) => ("should_not", innerSpec)
+      };
+    Json.Encode.(object_([(key, list(aggs, innerSpec))]));
+  };
 
 let aggsMap: aggsMap =
   list => List.map(((key, aggregation)) => (key, aggs(aggregation)), list);
