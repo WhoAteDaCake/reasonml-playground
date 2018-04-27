@@ -11,7 +11,7 @@ module.exports = {
   },
   devtool: 'eval',
   devServer: {
-    contentBase: '.',
+    contentBase: './example',
     hot: true,
     noInfo: true
   },

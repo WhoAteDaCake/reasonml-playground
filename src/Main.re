@@ -26,3 +26,5 @@ Js.Promise.(
        ElasticKit.Decode.searchResult(itemParse, resp) |> Js.log |> resolve
      )
 );
+
+let test = "asd";
