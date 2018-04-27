@@ -27,4 +27,4 @@ Js.Promise.(
      )
 );
 
-let test = "asd";
+Js.log("sad");

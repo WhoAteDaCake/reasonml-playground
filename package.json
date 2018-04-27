@@ -19,9 +19,9 @@
   "scripts": {
     "bsb:build": "bsb",
     "dev:watch": "nodemon --exec \"npm run make\" --watch src -e re",
-    "dev:server": "webpack-dev-server -w --config webpack.config.example.js",
+    "dev:server": "webpack-dev-server -w --config webpack.config.js",
     "dev":
-      "cross-env NODE_ENV=development concurrently \" ./watch-dev \" \" npm run dev:server \" ",
+      "cross-env NODE_ENV=development concurrently \" npm run dev:watch \" \" npm run dev:server \" ",
     "test": "bsb -make-world && jest",
     "clean": "bsb -clean-world && rimraf dist temp lib",
     "make": "bsb -make-world"
