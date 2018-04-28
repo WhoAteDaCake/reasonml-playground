@@ -5,7 +5,7 @@ const { name } = require('./package.json');
 
 module.exports = {
   // entry: './example/index.js',
-  entry: './lib/js/src/Main.js',
+  entry: './output/Main.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'example/temp')
@@ -15,10 +15,6 @@ module.exports = {
     contentBase: './example',
     hot: true,
     noInfo: true
-  },
-  watchOptions: {
-    aggregateTimeout: 600,
-    poll: 1000
   },
   resolve: {
     alias: {
