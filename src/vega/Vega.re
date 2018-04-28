@@ -1,3 +1,5 @@
-[@bs.module "path"] external listenerName : string => string = "";
+[@bs.module "react-vega"] external reactVega : Js.t({..}) = "default";
 
-[%raw "debugger"];
+[%raw "window.vega = ReactVega"];
+
+let listenerName = str => reactVega##listenerName(str);

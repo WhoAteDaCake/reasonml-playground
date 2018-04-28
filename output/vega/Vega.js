@@ -1,6 +1,12 @@
 'use strict';
 
+var ReactVega = require("react-vega");
 
-((debugger));
+((window.vega = ReactVega));
 
+function listenerName(str) {
+  return ReactVega.default.listenerName(str);
+}
+
+exports.listenerName = listenerName;
 /*  Not a pure module */

@@ -1,12 +1,7 @@
 'use strict';
 
-var ReactVega = require("react-vega");
+var Vega = require("./vega/Vega.js");
 
-function listenerName(str) {
-  return ReactVega.default.listenerName(str);
-}
+console.log(Vega.listenerName("madi"));
 
-console.log(ReactVega.default.listenerName("mad"));
-
-exports.listenerName = listenerName;
 /*  Not a pure module */
