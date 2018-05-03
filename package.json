@@ -4,7 +4,13 @@
   "main": "dist/reason-react-rollup-starter-kit.common.js",
   "module": "dist/reason-react-rollup-starter-kit.esm.js",
   "unpkg": "dist/reason-react-rollup-starter-kit.min.js",
-  "keywords": ["reasonml", "react", "rollup", "starter", "lib"],
+  "keywords": [
+    "reasonml",
+    "react",
+    "rollup",
+    "starter",
+    "lib"
+  ],
   "homepage": "https://github.com/katmai7/reason-react-rollup-starter-kit",
   "author": {
     "name": "Vitalii Hudyma",
@@ -20,8 +26,7 @@
     "bsb:build": "bsb",
     "dev:watch": "nodemon --exec \"npm run make || true\" --watch src -e re",
     "dev:server": "webpack-dev-server -w --config webpack.config.js",
-    "dev":
-      "cross-env NODE_ENV=development concurrently \" npm run dev:watch \" \" npm run dev:server \" ",
+    "dev": "cross-env NODE_ENV=development concurrently \" npm run dev:watch \" \" npm run dev:server \" ",
     "test": "bsb -make-world && jest",
     "clean": "bsb -clean-world && rimraf dist temp lib",
     "make": "bsb -make-world && cp -r ./lib/js/src/** ./output"
@@ -46,7 +51,7 @@
     "prettier": "^1.9.2",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "reason-react": "^0.3.2",
+    "reason-react": "^0.4.1",
     "rimraf": "^2.6.2",
     "rollup": "^0.56.3",
     "rollup-plugin-alias": "^1.4.0",
@@ -63,7 +68,9 @@
     "webpack-dev-server": "^2.11.1"
   },
   "jest": {
-    "roots": ["lib/js/__tests__"]
+    "roots": [
+      "lib/js/__tests__"
+    ]
   },
   "dependencies": {
     "@glennsl/bs-json": "^1.2.0",
@@ -72,6 +79,7 @@
     "concurrently": "^3.5.1",
     "nodemon": "^1.17.3",
     "react-vega": "^3.1.2",
+    "shortid": "^2.2.8",
     "vega": "^3.3.1",
     "vrroom": "github:glennsl/vrroom",
     "webpack-cli": "^2.0.15"
