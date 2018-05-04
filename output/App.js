@@ -7,6 +7,7 @@ var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Utils = require("./Utils.js");
 var React = require("react");
+var Fragment = require("./Fragment.js");
 var ReasonReact = require("reason-react/lib/js/src/ReasonReact.js");
 
 var component = ReasonReact.reducerComponent("App");
@@ -15,55 +16,64 @@ function initialState() {
   return /* record */[/* root */Tree.addChild(Tree.makeRoot(/* () */0), /* [] */0, "")];
 }
 
+function renderChildren(item, render) {
+  var match = item[/* children */3];
+  if (match) {
+    return React.createElement("div", {
+                className: "children"
+              }, ReasonReact.element(/* None */0, /* None */0, Fragment.make(/* array */[$$Array.of_list(List.map(render, item[/* children */3]))])));
+  } else {
+    return null;
+  }
+}
+
+function handleKey(root, item, $$event) {
+  var code = Utils.Dom[/* eventToKeyCode */3]($$event);
+  var content = Utils.Dom[/* targetValue */0]($$event.target);
+  var switcher = code - 8 | 0;
+  if (switcher > 10 || switcher < 0) {
+    return root;
+  } else {
+    switch (switcher) {
+      case 0 : 
+          if (content.length === 0) {
+            return Tree.withoutChild(root, item);
+          } else {
+            return root;
+          }
+      case 5 : 
+          var path = Utils.withoutLast(item[/* path */2]);
+          return Tree.addChild(root, path, "");
+      case 1 : 
+      case 2 : 
+      case 3 : 
+      case 4 : 
+      case 6 : 
+      case 7 : 
+      case 8 : 
+      case 9 : 
+          return root;
+      case 10 : 
+          return Tree.addChild(root, item[/* path */2], "");
+      
+    }
+  }
+}
+
 function make() {
   var newrecord = component.slice();
   newrecord[/* render */9] = (function (param) {
       var send = param[/* send */3];
       var state = param[/* state */1];
       var renderItem = function (item) {
-        var match = item[/* children */3];
-        var items = match ? ReasonReact.createDomElement("div", {
-                className: "children"
-              }, $$Array.of_list(List.map(renderItem, item[/* children */3]))) : React.createElement("div", {
-                className: "hidden"
-              });
-        return React.createElement("div", undefined, React.createElement("input", {
+        return React.createElement("div", {
+                    key: item[/* id */1]
+                  }, React.createElement("input", {
                         className: "row",
                         id: item[/* id */1],
                         value: item[/* content */0],
                         onKeyDown: (function ($$event) {
-                            var code = Utils.Dom[/* eventToKeyCode */3]($$event);
-                            var content = Utils.Dom[/* targetValue */0]($$event.target);
-                            var switcher = code - 8 | 0;
-                            var newRoot;
-                            if (switcher > 10 || switcher < 0) {
-                              newRoot = state[/* root */0];
-                            } else {
-                              switch (switcher) {
-                                case 0 : 
-                                    newRoot = content.length === 0 ? Tree.withoutChild(state[/* root */0], item) : state[/* root */0];
-                                    break;
-                                case 5 : 
-                                    var path = Utils.withoutLast(item[/* path */2]);
-                                    newRoot = Tree.addChild(state[/* root */0], path, "");
-                                    break;
-                                case 1 : 
-                                case 2 : 
-                                case 3 : 
-                                case 4 : 
-                                case 6 : 
-                                case 7 : 
-                                case 8 : 
-                                case 9 : 
-                                    newRoot = state[/* root */0];
-                                    break;
-                                case 10 : 
-                                    newRoot = Tree.addChild(state[/* root */0], item[/* path */2], "");
-                                    break;
-                                
-                              }
-                            }
-                            return Curry._1(send, /* Root */[newRoot]);
+                            return Curry._1(send, /* Root */[handleKey(state[/* root */0], item, $$event)]);
                           }),
                         onChange: (function ($$event) {
                             var content = Utils.Dom[/* eventToVal */2]($$event);
@@ -77,12 +87,11 @@ function make() {
                                   }), state[/* root */0], item[/* path */2]);
                             return Curry._1(send, /* Root */[newRoot]);
                           })
-                      }), items);
+                      }), renderChildren(item, renderItem));
       };
-      var items = List.map(renderItem, state[/* root */0][/* children */3]);
-      return ReasonReact.createDomElement("div", {
+      return React.createElement("div", {
                   className: "root"
-                }, $$Array.of_list(items));
+                }, ReasonReact.element(/* None */0, /* None */0, Fragment.make(/* array */[$$Array.of_list(List.map(renderItem, state[/* root */0][/* children */3]))])));
     });
   newrecord[/* initialState */10] = initialState;
   newrecord[/* reducer */12] = (function (action, _) {
@@ -93,5 +102,7 @@ function make() {
 
 exports.component = component;
 exports.initialState = initialState;
+exports.renderChildren = renderChildren;
+exports.handleKey = handleKey;
 exports.make = make;
 /* component Not a pure module */

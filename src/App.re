@@ -7,6 +7,37 @@ let component = ReasonReact.reducerComponent("App");
 
 let initialState = () => {root: Tree.addChild(Tree.makeRoot(), [], "")};
 
+let renderChildren = (item: Tree.entry, render) =>
+  switch item.children {
+  | [] => ReasonReact.null
+  | _ =>
+    <div className="children">
+      <Fragment> (Array.of_list(List.map(render, item.children))) </Fragment>
+    </div>
+  };
+
+let handleKey = (root: Tree.entry, item: Tree.entry, event) : Tree.entry => {
+  let code = Utils.Dom.eventToKeyCode(event);
+  let content = event |> ReactEventRe.Keyboard.target |> Utils.Dom.targetValue;
+  switch code {
+  | 13 =>
+    /* Enter */
+    let path = Utils.withoutLast(item.path);
+    Tree.addChild(root, path, "");
+  | 8 =>
+    /* Backspace */
+    if (String.length(content) == 0) {
+      Tree.withoutChild(root, item);
+    } else {
+      root;
+    }
+  | 18 =>
+    /* Alt */
+    Tree.addChild(root, item.path, "")
+  | _ => root
+  };
+};
+
 let make = _children => {
   ...component,
   initialState,
@@ -15,48 +46,13 @@ let make = _children => {
     | Root(root) => ReasonReact.Update({...state, root})
     },
   render: ({state, send}) => {
-    let rec renderItem = (item: Tree.entry) => {
-      let items =
-        switch item.children {
-        | [] => <div className="hidden" />
-        | _ =>
-          ReasonReact.createDomElement(
-            "div",
-            ~props={"className": "children"},
-            Array.of_list(List.map(renderItem, item.children))
-          )
-        };
-      <div>
+    let rec renderItem = (item: Tree.entry) =>
+      <div key=item.id>
         <input
           value=item.content
           className="row"
           id=item.id
-          onKeyDown=(
-            event => {
-              let code = Utils.Dom.eventToKeyCode(event);
-              let content =
-                event |> ReactEventRe.Keyboard.target |> Utils.Dom.targetValue;
-              let newRoot =
-                switch code {
-                | 13 =>
-                  /* Enter */
-                  let path = Utils.withoutLast(item.path);
-                  Tree.addChild(state.root, path, "");
-                | 8 =>
-                  /* Backspace */
-                  if (String.length(content) == 0) {
-                    Tree.withoutChild(state.root, item);
-                  } else {
-                    state.root;
-                  }
-                | 18 =>
-                  /* Alt */
-                  Tree.addChild(state.root, item.path, "")
-                | _ => state.root
-                };
-              send(Root(newRoot));
-            }
-          )
+          onKeyDown=(event => send(Root(handleKey(state.root, item, event))))
           onChange=(
             event => {
               let content = Utils.Dom.eventToVal(event);
@@ -66,14 +62,12 @@ let make = _children => {
             }
           )
         />
-        items
+        (renderChildren(item, renderItem))
       </div>;
-    };
-    let items = List.map(renderItem, state.root.children);
-    ReasonReact.createDomElement(
-      "div",
-      ~props={"className": "root"},
-      Array.of_list(items)
-    );
+    <div className="root">
+      <Fragment>
+        (Array.of_list(List.map(renderItem, state.root.children)))
+      </Fragment>
+    </div>;
   }
 };
