@@ -23,16 +23,25 @@ let make = _children => {
       (item: Tree.entry) =>
           <input
             value=item.content
+            className="row"
             onKeyDown=(event => {
               let code = Utils.Dom.eventToKeyCode(event);
-              switch (code) {
+              let content = event |> ReactEventRe.Keyboard.target |> Utils.Dom.targetValue;
+              let newRoot = switch (code) {
               | 13 => {
-                let path = List.rev(item.path) |> List.tl |> List.rev;
-                let newRoot = Tree.addChild(state.root, path, "");
-                send(Root(newRoot))
+                let path = Utils.withoutLast(item.path);
+                Tree.addChild(state.root, path, "");
               }
-              | _ => ()
+              | 8 => {
+                if (String.length(content) == 0) {
+                  Tree.withoutChild(state.root, item)
+                } else {
+                  state.root
+                }
+              }
+              | _ => state.root
             };
+            send(Root(newRoot))
             })
             onChange=(event => {
               let content = Utils.Dom.eventToVal(event);
@@ -42,6 +51,6 @@ let make = _children => {
           />,
         state.root.children
       );
-    ReasonReact.createDomElement("div", ~props=Utils.noProps, Array.of_list(items));
+    ReasonReact.createDomElement("div", ~props={ "className": "root"}, Array.of_list(items));
   }
 };

@@ -54,7 +54,12 @@ function exclude(predicate, list) {
             ]);
 }
 
+function withoutLast(ls) {
+  return List.rev(List.tl(List.rev(ls)));
+}
+
 exports.noProps = noProps;
 exports.Dom = Dom;
 exports.exclude = exclude;
+exports.withoutLast = withoutLast;
 /* noProps Not a pure module */

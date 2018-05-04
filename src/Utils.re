@@ -20,3 +20,5 @@ let exclude = (predicate: 'a => bool, list: list('a)) : (option('a), list('a)) =
     list,
     (None, [])
   );
+
+let withoutLast = ls => List.rev(ls) |> List.tl |> List.rev;

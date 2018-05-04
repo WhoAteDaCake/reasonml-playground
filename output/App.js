@@ -25,16 +25,23 @@ function make() {
       var state = param[/* state */1];
       var items = List.map((function (item) {
               return React.createElement("input", {
+                          className: "row",
                           value: item[/* content */0],
                           onKeyDown: (function ($$event) {
                               var code = Utils.Dom[/* eventToKeyCode */3]($$event);
-                              if (code !== 13) {
-                                return /* () */0;
+                              var content = Utils.Dom[/* targetValue */0]($$event.target);
+                              var newRoot;
+                              if (code !== 8) {
+                                if (code !== 13) {
+                                  newRoot = state[/* root */0];
+                                } else {
+                                  var path = Utils.withoutLast(item[/* path */2]);
+                                  newRoot = Tree.addChild(state[/* root */0], path, "");
+                                }
                               } else {
-                                var path = List.rev(List.tl(List.rev(item[/* path */2])));
-                                var newRoot = Tree.addChild(state[/* root */0], path, "");
-                                return Curry._1(send, /* Root */[newRoot]);
+                                newRoot = content.length === 0 ? Tree.withoutChild(state[/* root */0], item) : state[/* root */0];
                               }
+                              return Curry._1(send, /* Root */[newRoot]);
                             }),
                           onChange: (function ($$event) {
                               var content = Utils.Dom[/* eventToVal */2]($$event);
@@ -50,7 +57,9 @@ function make() {
                             })
                         });
             }), state[/* root */0][/* children */3]);
-      return ReasonReact.createDomElement("div", Utils.noProps, $$Array.of_list(items));
+      return ReasonReact.createDomElement("div", {
+                  className: "root"
+                }, $$Array.of_list(items));
     });
   newrecord[/* initialState */10] = initialState;
   newrecord[/* reducer */12] = (function (action, _) {
