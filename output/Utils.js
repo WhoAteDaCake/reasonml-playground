@@ -12,13 +12,23 @@ function targetValue(element) {
   return element.value;
 }
 
-function toValueOnChange($$event) {
+function eventToTarget($$event) {
+  return $$event.target;
+}
+
+function eventToVal($$event) {
   return $$event.target.value;
+}
+
+function eventToKeyCode($$event) {
+  return $$event.which;
 }
 
 var Dom = /* module */[
   /* targetValue */targetValue,
-  /* toValueOnChange */toValueOnChange
+  /* eventToTarget */eventToTarget,
+  /* eventToVal */eventToVal,
+  /* eventToKeyCode */eventToKeyCode
 ];
 
 function exclude(predicate, list) {

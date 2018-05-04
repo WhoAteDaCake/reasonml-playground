@@ -4,8 +4,9 @@ let noProps = {"key": sid()};
 
 module Dom = {
   let targetValue = element : string => (element |> ReactDOMRe.domElementToObj)##value;
-  let toValueOnChange = event =>
-    event |> ReactEventRe.Form.target |> targetValue;
+  let eventToTarget = event => event |> ReactEventRe.Form.target;
+  let eventToVal = event => eventToTarget(event) |> targetValue;
+  let eventToKeyCode = event => ReactEventRe.Keyboard.which(event);
 };
 
 let exclude = (predicate: 'a => bool, list: list('a)) : (option('a), list('a)) =>

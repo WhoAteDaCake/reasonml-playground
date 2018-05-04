@@ -1,22 +1,12 @@
-type entry = {
-  content: string,
-  id: string,
-  path: list(string),
-  children: array(entry)
-};
-
-type state = {children: array(entry)};
+type state = {root: Tree.entry};
 
 type action =
-  | Tick;
+  | Root(Tree.entry);
 
-/* let textChange = ({ReasonReact.state, send}, event) => Js.log(event); */
 let initalId = Utils.sid();
 
 let initialState = () => {
-  children: [|
-    {content: "test", id: initalId, children: [||], path: [initalId]}
-  |]
+  root: Tree.addChild(Tree.makeRoot(), [], ""),
 };
 
 let component = ReasonReact.reducerComponent("App");
@@ -24,17 +14,34 @@ let component = ReasonReact.reducerComponent("App");
 let make = _children => {
   ...component,
   initialState,
-  reducer: (_action: action, _state) => ReasonReact.NoUpdate,
-  render: ({state}) => {
+  reducer: (action: action, state) => switch (action) {
+  | Root(root) => ReasonReact.Update({...state, root})
+  },
+  render: ({state, send}) => {
     let items =
-      Array.map(
-        item =>
+      List.map(
+      (item: Tree.entry) =>
           <input
             value=item.content
-            onChange=(event => Js.log(Utils.Dom.toValueOnChange(event)))
+            onKeyDown=(event => {
+              let code = Utils.Dom.eventToKeyCode(event);
+              switch (code) {
+              | 13 => {
+                let path = List.rev(item.path) |> List.tl |> List.rev;
+                let newRoot = Tree.addChild(state.root, path, "");
+                send(Root(newRoot))
+              }
+              | _ => ()
+            };
+            })
+            onChange=(event => {
+              let content = Utils.Dom.eventToVal(event);
+              let newRoot = Tree.walk(entry => {...entry, content }, state.root, item.path);
+              send(Root(newRoot));
+            })
           />,
-        state.children
+        state.root.children
       );
-    ReasonReact.createDomElement("div", ~props=Utils.noProps, items);
+    ReasonReact.createDomElement("div", ~props=Utils.noProps, Array.of_list(items));
   }
 };

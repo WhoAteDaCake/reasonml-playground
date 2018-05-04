@@ -1,7 +1,9 @@
 'use strict';
 
-var Tree = require("./Tree.js");
+var App = require("./App.js");
+var ReactDOMRe = require("reason-react/lib/js/src/ReactDOMRe.js");
+var ReasonReact = require("reason-react/lib/js/src/ReasonReact.js");
 
-console.log(Tree.walk(Tree.noop, Tree.initialEntry, Tree.child1[/* path */2]));
+ReactDOMRe.renderToElementWithId(ReasonReact.element(/* None */0, /* None */0, App.make(/* array */[])), "app");
 
 /*  Not a pure module */

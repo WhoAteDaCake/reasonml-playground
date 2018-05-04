@@ -2,10 +2,9 @@
 
 var List = require("bs-platform/lib/js/list.js");
 var Curry = require("bs-platform/lib/js/curry.js");
-var Utils = require("./Utils.js");
 var Shortid = require("shortid");
 
-function makeChild(content, path) {
+function makeEntry(content, path) {
   var id = Shortid.generate();
   return /* record */[
           /* content */content,
@@ -18,27 +17,38 @@ function makeChild(content, path) {
         ];
 }
 
-function noop(entry) {
+function makeRoot() {
   return /* record */[
-          /* content */entry[/* content */0] + "hello",
-          /* id */entry[/* id */1],
-          /* path */entry[/* path */2],
-          /* children */entry[/* children */3]
+          /* content */"",
+          /* id */Shortid.generate(),
+          /* path : [] */0,
+          /* children : [] */0
+        ];
+}
+
+function appendChild(parent, child) {
+  return /* record */[
+          /* content */parent[/* content */0],
+          /* id */parent[/* id */1],
+          /* path */parent[/* path */2],
+          /* children */List.append(parent[/* children */3], /* :: */[
+                child,
+                /* [] */0
+              ])
         ];
 }
 
 function walk(updator, entry, path) {
   if (path) {
+    var rest = path[1];
     var id = path[0];
-    var match = Utils.exclude((function (child) {
-            return +(child[/* id */1] === id);
+    var updatedChildren = List.map((function (child) {
+            if (child[/* id */1] === id) {
+              return walk(updator, child, rest);
+            } else {
+              return child;
+            }
           }), entry[/* children */3]);
-    var children = match[1];
-    var excluded = match[0];
-    var updatedChildren = excluded ? /* :: */[
-        walk(updator, excluded[0], path[1]),
-        children
-      ] : children;
     return /* record */[
             /* content */entry[/* content */0],
             /* id */entry[/* id */1],
@@ -50,31 +60,16 @@ function walk(updator, entry, path) {
   }
 }
 
-var child1 = makeChild("child1", /* [] */0);
+function addChild(root, path, content) {
+  var child = makeEntry(content, path);
+  return walk((function (entry) {
+                return appendChild(entry, child);
+              }), root, path);
+}
 
-var child2 = makeChild("child2", /* [] */0);
-
-var initialEntry_001 = /* id */Shortid.generate();
-
-var initialEntry_003 = /* children : :: */[
-  child1,
-  /* :: */[
-    child2,
-    /* [] */0
-  ]
-];
-
-var initialEntry = /* record */[
-  /* content */"test",
-  initialEntry_001,
-  /* path : [] */0,
-  initialEntry_003
-];
-
-exports.makeChild = makeChild;
-exports.noop = noop;
+exports.makeEntry = makeEntry;
+exports.makeRoot = makeRoot;
+exports.appendChild = appendChild;
 exports.walk = walk;
-exports.child1 = child1;
-exports.child2 = child2;
-exports.initialEntry = initialEntry;
-/* child1 Not a pure module */
+exports.addChild = addChild;
+/* shortid Not a pure module */
