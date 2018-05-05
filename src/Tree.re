@@ -7,6 +7,8 @@ type entry = {
   children: list(entry)
 };
 
+type entries = list(entry);
+
 type update = entry => entry;
 
 let rec walk = (updator: update, entry: entry, path: path) : entry =>
@@ -26,6 +28,19 @@ let rec walk = (updator: update, entry: entry, path: path) : entry =>
     {...entry, children: updatedChildren};
   };
 
+let rec find = (entry: entry, path: path): option(entry) => {
+  switch path {
+  | [] => Some(entry)
+  | [id, ...rest] => {
+    let childOpt = Utils.find(child => child.id == id, entry.children);
+    switch (childOpt) {
+    | Some(child) => find(child, rest)
+    | None => None
+    }
+  }
+  };
+};
+
 let makeEntry = (content: string, path: path) : entry => {
   let id = Utils.sid();
   {content, id, path: List.append(path, [id]), children: []};
@@ -33,7 +48,7 @@ let makeEntry = (content: string, path: path) : entry => {
 
 let makeRoot = () => {content: "", id: Utils.sid(), path: [], children: []};
 
-let appendChild = (parent: entry, child: entry) : entry => {
+let appendChild = (child: entry, parent: entry) : entry => {
   ...parent,
   children: List.append(parent.children, [child])
 };
@@ -45,7 +60,7 @@ let removeChild = (id: string, parent: entry): entry => {
 
 let addChild = (root: entry, path: path, content: string) : entry => {
   let child = makeEntry(content, path);
-  walk(entry => appendChild(entry, child), root, path);
+  walk(appendChild(child), root, path);
 };
 
 let withoutChild = (root: entry, child: entry): entry => {

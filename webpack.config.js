@@ -17,10 +17,13 @@ module.exports = {
     noInfo: true
   },
   resolve: {
-    alias: {
-      [name]: path.resolve(__dirname, './temp/' + name + '.js')
-    }
+    modules: ['node_modules']
   },
+  // resolve: {
+  //   alias: {
+  //     [name]: path.resolve(__dirname, './temp/' + name + '.js')
+  //   }
+  // },
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),

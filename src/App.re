@@ -1,11 +1,16 @@
-type state = {root: Tree.entry};
+type state = {
+  root: Tree.entry,
+  focus: string
+};
 
 type action =
-  | Root(Tree.entry);
+  | Root(Tree.entry)
+  | Focus(string)
+  | FocusedRoot(Tree.entry, string);
 
 let component = ReasonReact.reducerComponent("App");
 
-let initialState = () => {root: Tree.addChild(Tree.makeRoot(), [], "")};
+let rootEntry = Tree.addChild(Tree.makeRoot(), [], "");
 
 let renderChildren = (item: Tree.entry, render) =>
   switch item.children {
@@ -16,49 +21,97 @@ let renderChildren = (item: Tree.entry, render) =>
     </div>
   };
 
-let handleKey = (root: Tree.entry, item: Tree.entry, event) : Tree.entry => {
+let handleKey =
+    (root: Tree.entry, item: Tree.entry, event, focus: string)
+    : (Tree.entry, string) => {
   let code = Utils.Dom.eventToKeyCode(event);
   let content = event |> ReactEventRe.Keyboard.target |> Utils.Dom.targetValue;
   switch code {
   | 13 =>
     /* Enter */
     let path = Utils.withoutLast(item.path);
-    Tree.addChild(root, path, "");
+    let child = Tree.makeEntry("", path);
+    (Tree.walk(Tree.appendChild(child), root, path), child.id);
   | 8 =>
     /* Backspace */
     if (String.length(content) == 0) {
-      Tree.withoutChild(root, item);
+      (Tree.withoutChild(root, item), focus);
     } else {
-      root;
+      (root, focus);
     }
   | 18 =>
     /* Alt */
-    Tree.addChild(root, item.path, "")
-  | _ => root
+    let child = Tree.makeEntry("", item.path);
+    (Tree.walk(Tree.appendChild(child), root, item.path), child.id);
+  | 38 =>
+    ReactEventRe.Keyboard.preventDefault(event);
+    /* Arrow up */
+    let (left, _, _) =
+      Utils.splitOn((child: Tree.entry) => child.id == item.id, root.children);
+    if (List.length(left) != 0) {
+      let prevChild: Tree.entry = Utils.last(left);
+      (root, prevChild.id);
+    } else {
+      (root, focus);
+    };
+  | 40 =>
+    ReactEventRe.Keyboard.preventDefault(event);
+    /* Arrow up */
+    let (_, _, right) =
+      Utils.splitOn((child: Tree.entry) => child.id == item.id, root.children);
+    if (List.length(right) != 0) {
+      let prevChild: Tree.entry = List.hd(right);
+      (root, prevChild.id);
+    } else {
+      (root, focus);
+    };
+  | _ => (root, focus)
   };
 };
 
 let make = _children => {
   ...component,
-  initialState,
+  initialState: () => {
+    root: rootEntry,
+    focus: List.nth(rootEntry.children, 0).id
+  },
   reducer: (action: action, state) =>
     switch action {
     | Root(root) => ReasonReact.Update({...state, root})
+    | Focus(focus) => ReasonReact.Update({...state, focus})
+    | FocusedRoot(root, focus) => ReasonReact.Update({...state, root, focus})
     },
+  didUpdate: ({oldSelf, newSelf}) => {
+    if (oldSelf.state.focus !== newSelf.state.focus) {
+      Utils.Dom.focus(newSelf.state.focus);
+    };
+    ();
+  },
   render: ({state, send}) => {
     let rec renderItem = (item: Tree.entry) =>
-      <div key=item.id>
+      <div key=item.id className="row">
         <input
           value=item.content
-          className="row"
           id=item.id
-          onKeyDown=(event => send(Root(handleKey(state.root, item, event))))
+          onKeyDown=(
+            event => {
+              let (newRoot, focus) =
+                handleKey(state.root, item, event, state.focus);
+              send(FocusedRoot(newRoot, focus));
+            }
+          )
           onChange=(
             event => {
               let content = Utils.Dom.eventToVal(event);
-              let newRoot =
-                Tree.walk(entry => {...entry, content}, state.root, item.path);
-              send(Root(newRoot));
+              send(
+                Root(
+                  Tree.walk(
+                    entry => {...entry, content},
+                    state.root,
+                    item.path
+                  )
+                )
+              );
             }
           )
         />

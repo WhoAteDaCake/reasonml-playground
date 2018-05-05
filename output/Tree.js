@@ -27,6 +27,31 @@ function walk(updator, entry, path) {
   }
 }
 
+function find(_entry, _path) {
+  while(true) {
+    var path = _path;
+    var entry = _entry;
+    if (path) {
+      var id = path[0];
+      var childOpt = Utils.find((function(id){
+          return function (child) {
+            return +(child[/* id */1] === id);
+          }
+          }(id)), entry[/* children */3]);
+      if (childOpt) {
+        _path = path[1];
+        _entry = childOpt[0];
+        continue ;
+        
+      } else {
+        return /* None */0;
+      }
+    } else {
+      return /* Some */[entry];
+    }
+  };
+}
+
 function makeEntry(content, path) {
   var id = Shortid.generate();
   return /* record */[
@@ -49,7 +74,7 @@ function makeRoot() {
         ];
 }
 
-function appendChild(parent, child) {
+function appendChild(child, parent) {
   return /* record */[
           /* content */parent[/* content */0],
           /* id */parent[/* id */1],
@@ -74,8 +99,8 @@ function removeChild(id, parent) {
 
 function addChild(root, path, content) {
   var child = makeEntry(content, path);
-  return walk((function (entry) {
-                return appendChild(entry, child);
+  return walk((function (param) {
+                return appendChild(child, param);
               }), root, path);
 }
 
@@ -87,6 +112,7 @@ function withoutChild(root, child) {
 }
 
 exports.walk = walk;
+exports.find = find;
 exports.makeEntry = makeEntry;
 exports.makeRoot = makeRoot;
 exports.appendChild = appendChild;

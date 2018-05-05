@@ -12,9 +12,7 @@ var ReasonReact = require("reason-react/lib/js/src/ReasonReact.js");
 
 var component = ReasonReact.reducerComponent("App");
 
-function initialState() {
-  return /* record */[/* root */Tree.addChild(Tree.makeRoot(/* () */0), /* [] */0, "")];
-}
+var rootEntry = Tree.addChild(Tree.makeRoot(/* () */0), /* [] */0, "");
 
 function renderChildren(item, render) {
   var match = item[/* children */3];
@@ -27,23 +25,85 @@ function renderChildren(item, render) {
   }
 }
 
-function handleKey(root, item, $$event) {
+function handleKey(root, item, $$event, focus) {
   var code = Utils.Dom[/* eventToKeyCode */3]($$event);
   var content = Utils.Dom[/* targetValue */0]($$event.target);
-  var switcher = code - 8 | 0;
-  if (switcher > 10 || switcher < 0) {
-    return root;
-  } else {
-    switch (switcher) {
+  if (code >= 19) {
+    var switcher = code - 38 | 0;
+    if (switcher > 2 || switcher < 0) {
+      return /* tuple */[
+              root,
+              focus
+            ];
+    } else {
+      switch (switcher) {
+        case 0 : 
+            $$event.preventDefault();
+            var match = Utils.splitOn((function (child) {
+                    return +(child[/* id */1] === item[/* id */1]);
+                  }), root[/* children */3]);
+            var left = match[0];
+            if (List.length(left) !== 0) {
+              var prevChild = Utils.last(left);
+              return /* tuple */[
+                      root,
+                      prevChild[/* id */1]
+                    ];
+            } else {
+              return /* tuple */[
+                      root,
+                      focus
+                    ];
+            }
+        case 1 : 
+            return /* tuple */[
+                    root,
+                    focus
+                  ];
+        case 2 : 
+            $$event.preventDefault();
+            var match$1 = Utils.splitOn((function (child) {
+                    return +(child[/* id */1] === item[/* id */1]);
+                  }), root[/* children */3]);
+            var right = match$1[2];
+            if (List.length(right) !== 0) {
+              var prevChild$1 = List.hd(right);
+              return /* tuple */[
+                      root,
+                      prevChild$1[/* id */1]
+                    ];
+            } else {
+              return /* tuple */[
+                      root,
+                      focus
+                    ];
+            }
+        
+      }
+    }
+  } else if (code >= 8) {
+    switch (code - 8 | 0) {
       case 0 : 
           if (content.length === 0) {
-            return Tree.withoutChild(root, item);
+            return /* tuple */[
+                    Tree.withoutChild(root, item),
+                    focus
+                  ];
           } else {
-            return root;
+            return /* tuple */[
+                    root,
+                    focus
+                  ];
           }
       case 5 : 
           var path = Utils.withoutLast(item[/* path */2]);
-          return Tree.addChild(root, path, "");
+          var child = Tree.makeEntry("", path);
+          return /* tuple */[
+                  Tree.walk((function (param) {
+                          return Tree.appendChild(child, param);
+                        }), root, path),
+                  child[/* id */1]
+                ];
       case 1 : 
       case 2 : 
       case 3 : 
@@ -52,40 +112,64 @@ function handleKey(root, item, $$event) {
       case 7 : 
       case 8 : 
       case 9 : 
-          return root;
+          return /* tuple */[
+                  root,
+                  focus
+                ];
       case 10 : 
-          return Tree.addChild(root, item[/* path */2], "");
+          var child$1 = Tree.makeEntry("", item[/* path */2]);
+          return /* tuple */[
+                  Tree.walk((function (param) {
+                          return Tree.appendChild(child$1, param);
+                        }), root, item[/* path */2]),
+                  child$1[/* id */1]
+                ];
       
     }
+  } else {
+    return /* tuple */[
+            root,
+            focus
+          ];
   }
 }
 
 function make() {
   var newrecord = component.slice();
+  newrecord[/* didUpdate */5] = (function (param) {
+      var newSelf = param[/* newSelf */1];
+      if (param[/* oldSelf */0][/* state */1][/* focus */1] !== newSelf[/* state */1][/* focus */1]) {
+        Utils.Dom[/* focus */5](newSelf[/* state */1][/* focus */1]);
+      }
+      return /* () */0;
+    });
   newrecord[/* render */9] = (function (param) {
       var send = param[/* send */3];
       var state = param[/* state */1];
       var renderItem = function (item) {
         return React.createElement("div", {
-                    key: item[/* id */1]
+                    key: item[/* id */1],
+                    className: "row"
                   }, React.createElement("input", {
-                        className: "row",
                         id: item[/* id */1],
                         value: item[/* content */0],
                         onKeyDown: (function ($$event) {
-                            return Curry._1(send, /* Root */[handleKey(state[/* root */0], item, $$event)]);
+                            var match = handleKey(state[/* root */0], item, $$event, state[/* focus */1]);
+                            return Curry._1(send, /* FocusedRoot */Block.__(2, [
+                                          match[0],
+                                          match[1]
+                                        ]));
                           }),
                         onChange: (function ($$event) {
                             var content = Utils.Dom[/* eventToVal */2]($$event);
-                            var newRoot = Tree.walk((function (entry) {
-                                    return /* record */[
-                                            /* content */content,
-                                            /* id */entry[/* id */1],
-                                            /* path */entry[/* path */2],
-                                            /* children */entry[/* children */3]
-                                          ];
-                                  }), state[/* root */0], item[/* path */2]);
-                            return Curry._1(send, /* Root */[newRoot]);
+                            return Curry._1(send, /* Root */Block.__(0, [Tree.walk((function (entry) {
+                                                  return /* record */[
+                                                          /* content */content,
+                                                          /* id */entry[/* id */1],
+                                                          /* path */entry[/* path */2],
+                                                          /* children */entry[/* children */3]
+                                                        ];
+                                                }), state[/* root */0], item[/* path */2])]));
                           })
                       }), renderChildren(item, renderItem));
       };
@@ -93,15 +177,37 @@ function make() {
                   className: "root"
                 }, ReasonReact.element(/* None */0, /* None */0, Fragment.make(/* array */[$$Array.of_list(List.map(renderItem, state[/* root */0][/* children */3]))])));
     });
-  newrecord[/* initialState */10] = initialState;
-  newrecord[/* reducer */12] = (function (action, _) {
-      return /* Update */Block.__(0, [/* record */[/* root */action[0]]]);
+  newrecord[/* initialState */10] = (function () {
+      return /* record */[
+              /* root */rootEntry,
+              /* focus */List.nth(rootEntry[/* children */3], 0)[/* id */1]
+            ];
+    });
+  newrecord[/* reducer */12] = (function (action, state) {
+      switch (action.tag | 0) {
+        case 0 : 
+            return /* Update */Block.__(0, [/* record */[
+                        /* root */action[0],
+                        /* focus */state[/* focus */1]
+                      ]]);
+        case 1 : 
+            return /* Update */Block.__(0, [/* record */[
+                        /* root */state[/* root */0],
+                        /* focus */action[0]
+                      ]]);
+        case 2 : 
+            return /* Update */Block.__(0, [/* record */[
+                        /* root */action[0],
+                        /* focus */action[1]
+                      ]]);
+        
+      }
     });
   return newrecord;
 }
 
 exports.component = component;
-exports.initialState = initialState;
+exports.rootEntry = rootEntry;
 exports.renderChildren = renderChildren;
 exports.handleKey = handleKey;
 exports.make = make;
