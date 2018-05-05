@@ -41,10 +41,15 @@ let rec find = (entry: entry, path: path): option(entry) => {
   };
 };
 
+let isSame = (e1: entry, e2: entry) => e1.id == e2.id;
+
+let hasChildren = (entry: entry): bool => List.length(entry.children) != 0;
+
 let makeEntry = (content: string, path: path) : entry => {
   let id = Utils.sid();
   {content, id, path: List.append(path, [id]), children: []};
 };
+
 
 let makeRoot = () => {content: "", id: Utils.sid(), path: [], children: []};
 
@@ -66,3 +71,40 @@ let addChild = (root: entry, path: path, content: string) : entry => {
 let withoutChild = (root: entry, child: entry): entry => {
   walk(removeChild(child.id), root, Utils.withoutLast(child.path))
 };
+
+let rec lastChild = (item: entry): entry => {
+  if (List.length(item.children) == 0) {
+    item
+  } else {
+    lastChild(Utils.last(item.children));
+  }
+};
+
+/*
+   First check if there is an entry above me
+    If there is then go to last child of that entry
+    If not, go to parent and repeat until root is reached,
+      If we reach root, just return current focus
+ */
+let rec walkUp =
+        (root: entry, item: entry, moved: bool): entry =>
+  if (isSame(root, item)) {
+    item;
+  } else {
+    let parentOpt: option(entry) =
+      find(root, Utils.withoutLast(item.path));
+    switch parentOpt {
+    | Some(parent) =>
+      let (left, me, _) = Utils.splitOn(isSame(item), parent.children);
+      if (List.length(left) == 0) {
+        if (moved) {
+          List.nth(me, 0);
+        } else {
+          walkUp(root, parent, true);
+        };
+      } else {
+        lastChild(Utils.last(left))
+      };
+    | None => item
+    };
+  };

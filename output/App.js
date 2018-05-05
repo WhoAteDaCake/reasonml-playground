@@ -39,20 +39,16 @@ function handleKey(root, item, $$event, focus) {
       switch (switcher) {
         case 0 : 
             $$event.preventDefault();
-            var match = Utils.splitOn((function (child) {
-                    return +(child[/* id */1] === item[/* id */1]);
-                  }), root[/* children */3]);
-            var left = match[0];
-            if (List.length(left) !== 0) {
-              var prevChild = Utils.last(left);
+            var above = Tree.walkUp(root, item, /* false */0);
+            if (Tree.isSame(root, above)) {
               return /* tuple */[
                       root,
-                      prevChild[/* id */1]
+                      focus
                     ];
             } else {
               return /* tuple */[
                       root,
-                      focus
+                      above[/* id */1]
                     ];
             }
         case 1 : 
@@ -62,16 +58,24 @@ function handleKey(root, item, $$event, focus) {
                   ];
         case 2 : 
             $$event.preventDefault();
-            var match$1 = Utils.splitOn((function (child) {
-                    return +(child[/* id */1] === item[/* id */1]);
-                  }), root[/* children */3]);
-            var right = match$1[2];
-            if (List.length(right) !== 0) {
-              var prevChild$1 = List.hd(right);
-              return /* tuple */[
-                      root,
-                      prevChild$1[/* id */1]
-                    ];
+            var parentOpt = Tree.find(root, Utils.withoutLast(item[/* path */2]));
+            if (parentOpt) {
+              var match = Utils.splitOn((function (param) {
+                      return Tree.isSame(item, param);
+                    }), parentOpt[0][/* children */3]);
+              var right = match[2];
+              if (List.length(right) !== 0) {
+                var prevChild = List.hd(right);
+                return /* tuple */[
+                        root,
+                        prevChild[/* id */1]
+                      ];
+              } else {
+                return /* tuple */[
+                        root,
+                        focus
+                      ];
+              }
             } else {
               return /* tuple */[
                       root,

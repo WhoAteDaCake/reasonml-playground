@@ -46,24 +46,27 @@ let handleKey =
   | 38 =>
     ReactEventRe.Keyboard.preventDefault(event);
     /* Arrow up */
-    let (left, _, _) =
-      Utils.splitOn((child: Tree.entry) => child.id == item.id, root.children);
-    if (List.length(left) != 0) {
-      let prevChild: Tree.entry = Utils.last(left);
-      (root, prevChild.id);
-    } else {
+    let above = Tree.walkUp(root, item, false);
+    if (Tree.isSame(root, above)) {
       (root, focus);
+    } else {
+      (root, above.id);
     };
   | 40 =>
     ReactEventRe.Keyboard.preventDefault(event);
     /* Arrow up */
-    let (_, _, right) =
-      Utils.splitOn((child: Tree.entry) => child.id == item.id, root.children);
-    if (List.length(right) != 0) {
-      let prevChild: Tree.entry = List.hd(right);
-      (root, prevChild.id);
-    } else {
-      (root, focus);
+    let parentOpt: option(Tree.entry) =
+      Tree.find(root, Utils.withoutLast(item.path));
+    switch parentOpt {
+    | None => (root, focus)
+    | Some(parent) =>
+      let (_, _, right) = Utils.splitOn(Tree.isSame(item), parent.children);
+      if (List.length(right) != 0) {
+        let prevChild: Tree.entry = List.hd(right);
+        (root, prevChild.id);
+      } else {
+        (root, focus);
+      };
     };
   | _ => (root, focus)
   };

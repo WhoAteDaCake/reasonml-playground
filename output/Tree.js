@@ -52,6 +52,14 @@ function find(_entry, _path) {
   };
 }
 
+function isSame(e1, e2) {
+  return +(e1[/* id */1] === e2[/* id */1]);
+}
+
+function hasChildren(entry) {
+  return +(List.length(entry[/* children */3]) !== 0);
+}
+
 function makeEntry(content, path) {
   var id = Shortid.generate();
   return /* record */[
@@ -111,12 +119,64 @@ function withoutChild(root, child) {
               }), root, Utils.withoutLast(child[/* path */2]));
 }
 
+function lastChild(_item) {
+  while(true) {
+    var item = _item;
+    if (List.length(item[/* children */3]) === 0) {
+      return item;
+    } else {
+      _item = Utils.last(item[/* children */3]);
+      continue ;
+      
+    }
+  };
+}
+
+function walkUp(root, _item, _moved) {
+  while(true) {
+    var moved = _moved;
+    var item = _item;
+    if (isSame(root, item)) {
+      return item;
+    } else {
+      var parentOpt = find(root, Utils.withoutLast(item[/* path */2]));
+      if (parentOpt) {
+        var parent = parentOpt[0];
+        var match = Utils.splitOn((function(item){
+            return function (param) {
+              return isSame(item, param);
+            }
+            }(item)), parent[/* children */3]);
+        var left = match[0];
+        if (List.length(left) === 0) {
+          if (moved) {
+            return List.nth(match[1], 0);
+          } else {
+            _moved = /* true */1;
+            _item = parent;
+            continue ;
+            
+          }
+        } else {
+          return lastChild(Utils.last(left));
+        }
+      } else {
+        return item;
+      }
+    }
+  };
+}
+
 exports.walk = walk;
 exports.find = find;
+exports.isSame = isSame;
+exports.hasChildren = hasChildren;
 exports.makeEntry = makeEntry;
 exports.makeRoot = makeRoot;
 exports.appendChild = appendChild;
 exports.removeChild = removeChild;
 exports.addChild = addChild;
 exports.withoutChild = withoutChild;
+exports.lastChild = lastChild;
+exports.walkUp = walkUp;
 /* Utils Not a pure module */
