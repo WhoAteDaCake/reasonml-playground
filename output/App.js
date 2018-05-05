@@ -1,5 +1,6 @@
 'use strict';
 
+var Data = require("./Data.js");
 var List = require("bs-platform/lib/js/list.js");
 var Tree = require("./Tree.js");
 var $$Array = require("bs-platform/lib/js/array.js");
@@ -12,7 +13,9 @@ var ReasonReact = require("reason-react/lib/js/src/ReasonReact.js");
 
 var component = ReasonReact.reducerComponent("App");
 
-var rootEntry = Tree.addChild(Tree.makeRoot(/* () */0), /* [] */0, "");
+var match = Data.load(Data.key);
+
+var rootEntry = match ? match[0] : Tree.addChild(Tree.makeRoot(/* () */0), /* [] */0, "");
 
 function renderChildren(item, render) {
   var match = item[/* children */3];
@@ -145,6 +148,7 @@ function make() {
       if (param[/* oldSelf */0][/* state */1][/* focus */1] !== newSelf[/* state */1][/* focus */1]) {
         Utils.Dom[/* focus */5](newSelf[/* state */1][/* focus */1]);
       }
+      Data.save(Data.key, newSelf[/* state */1][/* root */0]);
       return /* () */0;
     });
   newrecord[/* render */9] = (function (param) {

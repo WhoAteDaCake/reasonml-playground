@@ -10,7 +10,11 @@ type action =
 
 let component = ReasonReact.reducerComponent("App");
 
-let rootEntry = Tree.addChild(Tree.makeRoot(), [], "");
+let rootEntry =
+  switch (Data.load(Data.key)) {
+  | None => Tree.addChild(Tree.makeRoot(), [], "")
+  | Some(entry) => entry
+  };
 
 let renderChildren = (item: Tree.entry, render) =>
   switch item.children {
@@ -88,6 +92,7 @@ let make = _children => {
     if (oldSelf.state.focus !== newSelf.state.focus) {
       Utils.Dom.focus(newSelf.state.focus);
     };
+    Data.save(Data.key, newSelf.state.root);
     ();
   },
   render: ({state, send}) => {
