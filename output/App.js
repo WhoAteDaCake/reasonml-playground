@@ -78,12 +78,9 @@ function handleKey(root, item, $$event, focus) {
                   ];
           }
       case 5 : 
-          var path = Tree.parentPath(item);
-          var child = Tree.makeEntry("", path);
+          var child = Tree.makeEntry("", Tree.parentPath(item));
           return /* tuple */[
-                  Tree.walk((function (param) {
-                          return Tree.appendChild(child, param);
-                        }), root, path),
+                  Tree.insertAfter(item, child, root),
                   child[/* id */1]
                 ];
       case 1 : 

@@ -141,3 +141,13 @@ let walkDown = (root: entry, item: entry) : entry =>
     | None => item
     };
   };
+
+let insertAfter = (prev: entry, item: entry, root: entry) : entry =>
+  walk(
+    parent => {
+      let (left, me, right) = Utils.splitOn(isSame(prev), parent.children);
+      {...parent, children: List.concat([left, me, [item], right])};
+    },
+    root,
+    parentPath(prev)
+  );

@@ -33,9 +33,8 @@ let handleKey =
   switch code {
   | 13 =>
     /* Enter */
-    let path = Tree.parentPath(item);
-    let child = Tree.makeEntry("", path);
-    (Tree.walk(Tree.appendChild(child), root, path), child.id);
+    let child = Tree.makeEntry("", Tree.parentPath(item));
+    (Tree.insertAfter(item, child, root), child.id);
   | 8 =>
     /* Backspace */
     if (String.length(content) == 0) {

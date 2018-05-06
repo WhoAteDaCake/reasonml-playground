@@ -228,6 +228,35 @@ function walkDown(root, item) {
   }
 }
 
+function insertAfter(prev, item, root) {
+  return walk((function (parent) {
+                var match = Utils.splitOn((function (param) {
+                        return isSame(prev, param);
+                      }), parent[/* children */3]);
+                return /* record */[
+                        /* content */parent[/* content */0],
+                        /* id */parent[/* id */1],
+                        /* path */parent[/* path */2],
+                        /* children */List.concat(/* :: */[
+                              match[0],
+                              /* :: */[
+                                match[1],
+                                /* :: */[
+                                  /* :: */[
+                                    item,
+                                    /* [] */0
+                                  ],
+                                  /* :: */[
+                                    match[2],
+                                    /* [] */0
+                                  ]
+                                ]
+                              ]
+                            ])
+                      ];
+              }), root, Utils.withoutLast(prev[/* path */2]));
+}
+
 exports.walk = walk;
 exports.find = find;
 exports.isSame = isSame;
@@ -244,4 +273,5 @@ exports.walkUp = walkUp;
 exports.walkUpWhile = walkUpWhile;
 exports.shouldStop = shouldStop;
 exports.walkDown = walkDown;
+exports.insertAfter = insertAfter;
 /* Utils Not a pure module */
