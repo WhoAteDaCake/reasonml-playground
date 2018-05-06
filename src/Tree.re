@@ -43,6 +43,9 @@ let isSame = (e1: entry, e2: entry) => e1.id == e2.id;
 
 let hasChildren = (entry: entry) : bool => List.length(entry.children) != 0;
 
+let parentPath = (entry: entry) : list(string) =>
+  Utils.withoutLast(entry.path);
+
 let makeEntry = (content: string, path: path) : entry => {
   let id = Utils.sid();
   {content, id, path: List.append(path, [id]), children: []};

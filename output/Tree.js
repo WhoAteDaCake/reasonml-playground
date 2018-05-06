@@ -60,6 +60,10 @@ function hasChildren(entry) {
   return +(List.length(entry[/* children */3]) !== 0);
 }
 
+function parentPath(entry) {
+  return Utils.withoutLast(entry[/* path */2]);
+}
+
 function makeEntry(content, path) {
   var id = Shortid.generate();
   return /* record */[
@@ -228,6 +232,7 @@ exports.walk = walk;
 exports.find = find;
 exports.isSame = isSame;
 exports.hasChildren = hasChildren;
+exports.parentPath = parentPath;
 exports.makeEntry = makeEntry;
 exports.makeRoot = makeRoot;
 exports.appendChild = appendChild;

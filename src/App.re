@@ -33,13 +33,16 @@ let handleKey =
   switch code {
   | 13 =>
     /* Enter */
-    let path = Utils.withoutLast(item.path);
+    let path = Tree.parentPath(item);
     let child = Tree.makeEntry("", path);
     (Tree.walk(Tree.appendChild(child), root, path), child.id);
   | 8 =>
     /* Backspace */
     if (String.length(content) == 0) {
-      (Tree.withoutChild(root, item), focus);
+      let focused = Tree.walkUp(root, item);
+      let root =
+        Tree.walk(Tree.removeChild(item.id), root, Tree.parentPath(item));
+      (root, focused.id);
     } else {
       (root, focus);
     }
@@ -53,20 +56,6 @@ let handleKey =
   | 40 =>
     /* Arrow down */
     (root, Tree.walkDown(root, item).id)
-  /* Js.log(); */
-  /* let parentOpt: option(Tree.entry) =
-       Tree.find(root, Utils.withoutLast(item.path));
-     switch parentOpt {
-     | None => (root, focus)
-     | Some(parent) =>
-       let (_, _, right) = Utils.splitOn(Tree.isSame(item), parent.children);
-       if (List.length(right) != 0) {
-         let prevChild: Tree.entry = List.hd(right);
-         (root, prevChild.id);
-       } else {
-         (root, focus);
-       };
-     }; */
   | _ => (root, focus)
   };
 };
@@ -104,18 +93,16 @@ let make = _children => {
             }
           )
           onChange=(
-            event => {
-              let content = Utils.Dom.eventToVal(event);
+            event =>
               send(
                 Root(
                   Tree.walk(
-                    entry => {...entry, content},
+                    entry => {...entry, content: Utils.Dom.eventToVal(event)},
                     state.root,
                     item.path
                   )
                 )
-              );
-            }
+              )
           )
         />
         (renderChildren(item, renderItem))

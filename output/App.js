@@ -62,9 +62,14 @@ function handleKey(root, item, $$event, focus) {
     switch (code - 8 | 0) {
       case 0 : 
           if (content.length === 0) {
+            var focused = Tree.walkUp(root, item);
+            var partial_arg = item[/* id */1];
+            var root$1 = Tree.walk((function (param) {
+                    return Tree.removeChild(partial_arg, param);
+                  }), root, Tree.parentPath(item));
             return /* tuple */[
-                    Tree.withoutChild(root, item),
-                    focus
+                    root$1,
+                    focused[/* id */1]
                   ];
           } else {
             return /* tuple */[
@@ -73,7 +78,7 @@ function handleKey(root, item, $$event, focus) {
                   ];
           }
       case 5 : 
-          var path = Utils.withoutLast(item[/* path */2]);
+          var path = Tree.parentPath(item);
           var child = Tree.makeEntry("", path);
           return /* tuple */[
                   Tree.walk((function (param) {
@@ -139,10 +144,9 @@ function make() {
                                         ]));
                           }),
                         onChange: (function ($$event) {
-                            var content = Utils.Dom[/* eventToVal */2]($$event);
                             return Curry._1(send, /* Root */Block.__(0, [Tree.walk((function (entry) {
                                                   return /* record */[
-                                                          /* content */content,
+                                                          /* content */Utils.Dom[/* eventToVal */2]($$event),
                                                           /* id */entry[/* id */1],
                                                           /* path */entry[/* path */2],
                                                           /* children */entry[/* children */3]
