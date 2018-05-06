@@ -154,19 +154,20 @@ function walkUpWhile(predicate, root, _item, _visited) {
   while(true) {
     var visited = _visited;
     var item = _item;
+    var didVisit = /* :: */[
+      item,
+      visited
+    ];
     var match = find(root, Utils.withoutLast(item[/* path */2]));
     if (match) {
       var parent = match[0];
-      if (Curry._3(predicate, root, parent, visited)) {
+      if (Curry._3(predicate, root, parent, didVisit)) {
         return /* tuple */[
                 parent,
-                visited
+                didVisit
               ];
       } else {
-        _visited = /* :: */[
-          parent,
-          visited
-        ];
+        _visited = didVisit;
         _item = parent;
         continue ;
         
@@ -174,7 +175,7 @@ function walkUpWhile(predicate, root, _item, _visited) {
     } else {
       return /* tuple */[
               item,
-              visited
+              didVisit
             ];
     }
   };
@@ -193,25 +194,19 @@ function shouldStop(root, entry, visited) {
 }
 
 function walkDown(root, item) {
-  if (isSame(root, item)) {
-    return item;
-  } else if (hasChildren(item)) {
+  if (hasChildren(item)) {
     return List.hd(item[/* children */3]);
   } else {
     var match = find(root, Utils.withoutLast(item[/* path */2]));
     if (match) {
-      var parent = match[0];
       var match$1 = Utils.splitOn((function (param) {
               return isSame(item, param);
-            }), parent[/* children */3]);
+            }), match[0][/* children */3]);
       var right = match$1[2];
       if (List.length(right) !== 0) {
         return List.hd(right);
       } else {
-        var match$2 = walkUpWhile(shouldStop, root, parent, /* :: */[
-              parent,
-              /* [] */0
-            ]);
+        var match$2 = walkUpWhile(shouldStop, root, item, /* [] */0);
         var found = match$2[0];
         if (isSame(found, root)) {
           return item;
