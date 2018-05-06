@@ -41,50 +41,20 @@ function handleKey(root, item, $$event, focus) {
     } else {
       switch (switcher) {
         case 0 : 
-            $$event.preventDefault();
-            var above = Tree.walkUp(root, item, /* false */0);
-            if (Tree.isSame(root, above)) {
-              return /* tuple */[
-                      root,
-                      focus
-                    ];
-            } else {
-              return /* tuple */[
-                      root,
-                      above[/* id */1]
-                    ];
-            }
+            return /* tuple */[
+                    root,
+                    Tree.walkUp(root, item)[/* id */1]
+                  ];
         case 1 : 
             return /* tuple */[
                     root,
                     focus
                   ];
         case 2 : 
-            $$event.preventDefault();
-            var parentOpt = Tree.find(root, Utils.withoutLast(item[/* path */2]));
-            if (parentOpt) {
-              var match = Utils.splitOn((function (param) {
-                      return Tree.isSame(item, param);
-                    }), parentOpt[0][/* children */3]);
-              var right = match[2];
-              if (List.length(right) !== 0) {
-                var prevChild = List.hd(right);
-                return /* tuple */[
-                        root,
-                        prevChild[/* id */1]
-                      ];
-              } else {
-                return /* tuple */[
-                        root,
-                        focus
-                      ];
-              }
-            } else {
-              return /* tuple */[
-                      root,
-                      focus
-                    ];
-            }
+            return /* tuple */[
+                    root,
+                    Tree.walkDown(root, item)[/* id */1]
+                  ];
         
       }
     }

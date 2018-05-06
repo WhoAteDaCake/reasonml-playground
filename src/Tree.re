@@ -36,7 +36,7 @@ let rec find = (entry: entry, path: path): option(entry) => {
     switch (childOpt) {
     | Some(child) => find(child, rest)
     | None => None
-    }
+    };
   }
   };
 };
@@ -49,7 +49,6 @@ let makeEntry = (content: string, path: path) : entry => {
   let id = Utils.sid();
   {content, id, path: List.append(path, [id]), children: []};
 };
-
 
 let makeRoot = () => {content: "", id: Utils.sid(), path: [], children: []};
 
@@ -80,30 +79,58 @@ let rec lastChild = (item: entry): entry => {
   }
 };
 
-/*
-   First check if there is an entry above me
-    If there is then go to last child of that entry
-    If not, go to parent and repeat until root is reached,
-      If we reach root, just return current focus
- */
-let rec walkUp =
-        (root: entry, item: entry, moved: bool): entry =>
+let walkUp = (root: entry, item: entry): entry =>
+  switch (find(root, Utils.withoutLast(item.path))) {
+  | Some(parent) =>
+    let (left, me, _) = Utils.splitOn(isSame(item), parent.children);
+    if (List.length(left) != 0) {
+      lastChild(Utils.last(left))
+    } else {
+      parent
+    }
+  | None => item
+  };
+
+let rec walkUpWhile = (predicate: (entry, entry, list(entry)) => bool, root: entry, item: entry, visited: list(entry)):
+  (entry, list(entry)) =>
+ switch (find(root, Utils.withoutLast(item.path))) {
+  | None => (item, visited)
+  | Some(parent) =>
+    if (predicate(root, parent, visited)) {
+      (parent, visited);
+    } else {
+      walkUpWhile(predicate, root, parent, [parent, ...visited]);
+    }
+ };
+
+let shouldStop = (root: entry, entry: entry, visited: list(entry)): bool => if (isSame(entry, root)) {
+  true
+} else {
+  let (_, _, right) = Utils.splitOn(isSame(List.hd(visited)), entry.children);
+  List.length(right) != 0;
+};
+
+let walkDown = (root: entry, item: entry): entry =>
   if (isSame(root, item)) {
     item;
+  } else if (hasChildren(item)) {
+    List.hd(item.children);
   } else {
-    let parentOpt: option(entry) =
-      find(root, Utils.withoutLast(item.path));
-    switch parentOpt {
+    switch (find(root, Utils.withoutLast(item.path))) {
     | Some(parent) =>
-      let (left, me, _) = Utils.splitOn(isSame(item), parent.children);
-      if (List.length(left) == 0) {
-        if (moved) {
-          List.nth(me, 0);
-        } else {
-          walkUp(root, parent, true);
-        };
+      let (_, _, right) = Utils.splitOn(isSame(item), parent.children);
+      if (List.length(right) != 0) {
+        List.hd(right);
       } else {
-        lastChild(Utils.last(left))
+        let (found, visited) = walkUpWhile(shouldStop, root, parent, [parent]);
+        if (isSame(found, root)) {
+          item;
+        } else {
+          let (_, _, right) = Utils.splitOn(isSame(List.hd(visited)), found.children);
+          List.hd(right);
+        }
+        /* let (_, _, right) = Utils.splitOn(entry => List.exists(isSame(entry), visited), found.children);
+        List.hd(right); */
       };
     | None => item
     };

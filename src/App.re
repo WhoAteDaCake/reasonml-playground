@@ -48,30 +48,25 @@ let handleKey =
     let child = Tree.makeEntry("", item.path);
     (Tree.walk(Tree.appendChild(child), root, item.path), child.id);
   | 38 =>
-    ReactEventRe.Keyboard.preventDefault(event);
     /* Arrow up */
-    let above = Tree.walkUp(root, item, false);
-    if (Tree.isSame(root, above)) {
-      (root, focus);
-    } else {
-      (root, above.id);
-    };
+    (root, Tree.walkUp(root, item).id)
   | 40 =>
-    ReactEventRe.Keyboard.preventDefault(event);
-    /* Arrow up */
-    let parentOpt: option(Tree.entry) =
-      Tree.find(root, Utils.withoutLast(item.path));
-    switch parentOpt {
-    | None => (root, focus)
-    | Some(parent) =>
-      let (_, _, right) = Utils.splitOn(Tree.isSame(item), parent.children);
-      if (List.length(right) != 0) {
-        let prevChild: Tree.entry = List.hd(right);
-        (root, prevChild.id);
-      } else {
-        (root, focus);
-      };
-    };
+    /* Arrow down */
+    (root, Tree.walkDown(root, item).id)
+  /* Js.log(); */
+  /* let parentOpt: option(Tree.entry) =
+       Tree.find(root, Utils.withoutLast(item.path));
+     switch parentOpt {
+     | None => (root, focus)
+     | Some(parent) =>
+       let (_, _, right) = Utils.splitOn(Tree.isSame(item), parent.children);
+       if (List.length(right) != 0) {
+         let prevChild: Tree.entry = List.hd(right);
+         (root, prevChild.id);
+       } else {
+         (root, focus);
+       };
+     }; */
   | _ => (root, focus)
   };
 };

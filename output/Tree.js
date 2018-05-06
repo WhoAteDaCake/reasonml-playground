@@ -132,39 +132,101 @@ function lastChild(_item) {
   };
 }
 
-function walkUp(root, _item, _moved) {
-  while(true) {
-    var moved = _moved;
-    var item = _item;
-    if (isSame(root, item)) {
-      return item;
+function walkUp(root, item) {
+  var match = find(root, Utils.withoutLast(item[/* path */2]));
+  if (match) {
+    var parent = match[0];
+    var match$1 = Utils.splitOn((function (param) {
+            return isSame(item, param);
+          }), parent[/* children */3]);
+    var left = match$1[0];
+    if (List.length(left) !== 0) {
+      return lastChild(Utils.last(left));
     } else {
-      var parentOpt = find(root, Utils.withoutLast(item[/* path */2]));
-      if (parentOpt) {
-        var parent = parentOpt[0];
-        var match = Utils.splitOn((function(item){
-            return function (param) {
-              return isSame(item, param);
-            }
-            }(item)), parent[/* children */3]);
-        var left = match[0];
-        if (List.length(left) === 0) {
-          if (moved) {
-            return List.nth(match[1], 0);
-          } else {
-            _moved = /* true */1;
-            _item = parent;
-            continue ;
-            
-          }
-        } else {
-          return lastChild(Utils.last(left));
-        }
+      return parent;
+    }
+  } else {
+    return item;
+  }
+}
+
+function walkUpWhile(predicate, root, _item, _visited) {
+  while(true) {
+    var visited = _visited;
+    var item = _item;
+    var match = find(root, Utils.withoutLast(item[/* path */2]));
+    if (match) {
+      var parent = match[0];
+      if (Curry._3(predicate, root, parent, visited)) {
+        return /* tuple */[
+                parent,
+                visited
+              ];
       } else {
-        return item;
+        _visited = /* :: */[
+          parent,
+          visited
+        ];
+        _item = parent;
+        continue ;
+        
       }
+    } else {
+      return /* tuple */[
+              item,
+              visited
+            ];
     }
   };
+}
+
+function shouldStop(root, entry, visited) {
+  if (isSame(entry, root)) {
+    return /* true */1;
+  } else {
+    var partial_arg = List.hd(visited);
+    var match = Utils.splitOn((function (param) {
+            return isSame(partial_arg, param);
+          }), entry[/* children */3]);
+    return +(List.length(match[2]) !== 0);
+  }
+}
+
+function walkDown(root, item) {
+  if (isSame(root, item)) {
+    return item;
+  } else if (hasChildren(item)) {
+    return List.hd(item[/* children */3]);
+  } else {
+    var match = find(root, Utils.withoutLast(item[/* path */2]));
+    if (match) {
+      var parent = match[0];
+      var match$1 = Utils.splitOn((function (param) {
+              return isSame(item, param);
+            }), parent[/* children */3]);
+      var right = match$1[2];
+      if (List.length(right) !== 0) {
+        return List.hd(right);
+      } else {
+        var match$2 = walkUpWhile(shouldStop, root, parent, /* :: */[
+              parent,
+              /* [] */0
+            ]);
+        var found = match$2[0];
+        if (isSame(found, root)) {
+          return item;
+        } else {
+          var partial_arg = List.hd(match$2[1]);
+          var match$3 = Utils.splitOn((function (param) {
+                  return isSame(partial_arg, param);
+                }), found[/* children */3]);
+          return List.hd(match$3[2]);
+        }
+      }
+    } else {
+      return item;
+    }
+  }
 }
 
 exports.walk = walk;
@@ -179,4 +241,7 @@ exports.addChild = addChild;
 exports.withoutChild = withoutChild;
 exports.lastChild = lastChild;
 exports.walkUp = walkUp;
+exports.walkUpWhile = walkUpWhile;
+exports.shouldStop = shouldStop;
+exports.walkDown = walkDown;
 /* Utils Not a pure module */
