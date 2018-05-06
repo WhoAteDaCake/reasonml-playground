@@ -1,6 +1,8 @@
 [@bs.val] external unsafeJsonParse : string => 'a = "JSON.parse";
 
-let key = "reason-react-todos";
+let treeKey = "reason-react-todos";
+
+let basePathKey = "reason-react-path";
 
 let save = (which: string, item) =>
   switch (Js.Json.stringifyAny(item)) {

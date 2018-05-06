@@ -81,7 +81,7 @@ let rec lastChild = (item: entry) : entry =>
 let walkUp = (root: entry, item: entry) : entry =>
   switch (find(root, Utils.withoutLast(item.path))) {
   | Some(parent) =>
-    let (left, me, _) = Utils.splitOn(isSame(item), parent.children);
+    let (left, _, _) = Utils.splitOn(isSame(item), parent.children);
     if (List.length(left) != 0) {
       lastChild(Utils.last(left));
     } else {

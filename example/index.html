@@ -6,29 +6,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Reason-react example</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.12/css/all.css" integrity="sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9"
+    crossorigin="anonymous">
   <style>
-    .root {
+    .root,
+    .row {
       display: flex;
       flex-direction: column;
-    }
-
-    .hidden {
-      display: none;
     }
 
     .children {
       margin-left: 1em;
     }
 
-    .row>input {
-      outline: none;
-      border: none;
+    .row>.content {
+      display: flex;
     }
 
-    .row::before {
-      content: '*';
+    .row>.content>input {
+      outline: none;
+      border: none;
+      font-size: 18px;
+    }
+
+    .row>.content>.pad {
       margin-right: 0.5em;
-      text-align: center;
+      cursor: pointer;
+    }
+
+    .row>.content>.pad>i {
+      font-size: 6px;
     }
   </style>
 </head>

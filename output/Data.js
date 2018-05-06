@@ -20,9 +20,12 @@ function load(which) {
   }
 }
 
-var key = "reason-react-todos";
+var treeKey = "reason-react-todos";
 
-exports.key = key;
+var basePathKey = "reason-react-path";
+
+exports.treeKey = treeKey;
+exports.basePathKey = basePathKey;
 exports.save = save;
 exports.load = load;
 /* No side effect */
