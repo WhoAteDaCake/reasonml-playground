@@ -77,9 +77,9 @@ function makeEntry(content, path) {
         ];
 }
 
-function makeRoot() {
+function makeRoot(content) {
   return /* record */[
-          /* content */"",
+          /* content */content,
           /* id */Shortid.generate(),
           /* path : [] */0,
           /* children : [] */0

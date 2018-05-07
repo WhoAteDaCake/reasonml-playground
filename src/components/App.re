@@ -10,11 +10,16 @@ type action =
   | FocusedRoot(Tree.entry, string)
   | UpdateBasePath(list(string));
 
+/* To do:
+     Extract functions using self.handle to pass send
+     Move the circle icons to a seperate component to color on hover
+     Standardise Tree types for id, path
+   */
 let component = ReasonReact.reducerComponent("App");
 
 let rootEntry =
   switch (Data.load(Data.treeKey)) {
-  | None => Tree.addChild(Tree.makeRoot(), [], "")
+  | None => Tree.addChild(Tree.makeRoot("Home"), [], "")
   | Some(entry) => entry
   };
 
@@ -89,6 +94,31 @@ let make = _children => {
       | Some(entry) => entry
       | None => state.root
       };
+    let makeCrumb = (root, path) =>
+      switch (Tree.find(root, path)) {
+      | Some(item) =>
+        <div onClick=(_e => send(UpdateBasePath(item.path))) key=(Utils.sid())>
+          (ReasonReact.string(item.content))
+        </div>
+      | None => ReasonReact.null
+      };
+    let makeCrumbs = (entry: Tree.entry, path: list(string)) => {
+      let (_, crumbs) =
+        List.fold_left(
+          ((count, items), _) => {
+            let pathTo =
+              switch (Belt.List.take(path, count)) {
+              | Some(xs) => xs
+              | None => []
+              };
+            Js.log(pathTo);
+            (count + 1, Belt.List.add(items, makeCrumb(entry, pathTo)));
+          },
+          (1, []),
+          path
+        );
+      crumbs;
+    };
     let rec renderItem = (item: Tree.entry) =>
       <div key=item.id className="row">
         <div className="content">
@@ -124,10 +154,18 @@ let make = _children => {
         </div>
         (renderChildren(item, renderItem))
       </div>;
+    let crumbs =
+      makeCrumbs(state.root, state.basePath)
+      |> (ls => List.append([makeCrumb(state.root, [])], ls));
     <div className="root">
-      <Fragment>
-        (Array.of_list(List.map(renderItem, root.children)))
-      </Fragment>
+      <div className="header">
+        <Fragment> (Array.of_list(crumbs)) </Fragment>
+      </div>
+      <div className="tree">
+        <Fragment>
+          (Array.of_list(List.map(renderItem, root.children)))
+        </Fragment>
+      </div>
     </div>;
   }
 };

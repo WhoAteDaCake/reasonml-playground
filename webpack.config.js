@@ -4,26 +4,16 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { name } = require('./package.json');
 
 module.exports = {
-  // entry: './example/index.js',
   entry: './output/Main.js',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'example/temp')
   },
-  devtool: 'eval',
-  devServer: {
-    contentBase: './example',
-    hot: true,
-    noInfo: true
-  },
   resolve: {
-    modules: ['node_modules']
+    modules: [path.join(__dirname, './node_modules')],
+    moduleExtensions: ['js']
   },
-  // resolve: {
-  //   alias: {
-  //     [name]: path.resolve(__dirname, './temp/' + name + '.js')
-  //   }
-  // },
+  mode: 'development',
   plugins: [
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
@@ -32,6 +22,15 @@ module.exports = {
       inject: true
     })
   ],
+  devtool: 'eval',
+  devServer: {
+    contentBase: './example',
+    hot: true,
+    watchOptions: {
+      aggregateTimeout: 2000,
+      poll: 1000
+    }
+  },
   module: {
     rules: [
       {

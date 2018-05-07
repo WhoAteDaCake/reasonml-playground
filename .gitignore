@@ -54,3 +54,4 @@ typings
 /lib/*
 .bsb.lock
 exampleQueries.txt
+output/

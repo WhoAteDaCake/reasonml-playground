@@ -4,8 +4,9 @@ type entry = {
   content: string,
   id: string,
   path,
-  children: list(entry)
-};
+  children
+}
+and children = list(entry);
 
 type entries = list(entry);
 
@@ -51,7 +52,7 @@ let makeEntry = (content: string, path: path) : entry => {
   {content, id, path: List.append(path, [id]), children: []};
 };
 
-let makeRoot = () => {content: "", id: Utils.sid(), path: [], children: []};
+let makeRoot = content => {content, id: Utils.sid(), path: [], children: []};
 
 let appendChild = (child: entry, parent: entry) : entry => {
   ...parent,

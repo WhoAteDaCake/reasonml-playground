@@ -4,13 +4,7 @@
   "main": "dist/reason-react-rollup-starter-kit.common.js",
   "module": "dist/reason-react-rollup-starter-kit.esm.js",
   "unpkg": "dist/reason-react-rollup-starter-kit.min.js",
-  "keywords": [
-    "reasonml",
-    "react",
-    "rollup",
-    "starter",
-    "lib"
-  ],
+  "keywords": ["reasonml", "react", "rollup", "starter", "lib"],
   "homepage": "https://github.com/katmai7/reason-react-rollup-starter-kit",
   "author": {
     "name": "Vitalii Hudyma",
@@ -25,11 +19,11 @@
   "scripts": {
     "bsb:build": "bsb",
     "dev:watch": "nodemon --exec \"npm run make || true\" --watch src -e re",
-    "dev:server": "webpack-dev-server -w --config webpack.config.js",
-    "dev": "cross-env NODE_ENV=development concurrently \" npm run dev:watch \" \" npm run dev:server \" ",
+    "dev:server": "webpack-dev-server --config webpack.config.js --port 4000",
+    "dev": "NODE_ENV=development concurrently \" npm run dev:watch \" \" npm run dev:server \" ",
     "test": "bsb -make-world && jest",
     "clean": "bsb -clean-world && rimraf dist temp lib",
-    "make": "bsb -make-world && cp -r ./lib/js/src/** ./output"
+    "make": "bsb -make-world && cp -R ./lib/js/src/** ./output"
   },
   "engines": {
     "npm": ">=5.6.0",
@@ -46,7 +40,7 @@
     "cross-env": "^5.1.3",
     "css-loader": "^0.28.9",
     "enzyme-adapter-react-16": "^1.1.1",
-    "html-webpack-plugin": "^2.30.1",
+    "html-webpack-plugin": "^3.2.0",
     "jest": "^22.0.4",
     "prettier": "^1.9.2",
     "react": "^16.2.0",
@@ -64,13 +58,11 @@
     "rollup-plugin-uglify": "^2.0.1",
     "style-loader": "^0.20.1",
     "uglify-es": "^3.3.4",
-    "webpack": "^3.10.0",
-    "webpack-dev-server": "^2.11.1"
+    "webpack": "^4.8.0",
+    "webpack-dev-server": "^3.1.4"
   },
   "jest": {
-    "roots": [
-      "lib/js/__tests__"
-    ]
+    "roots": ["lib/js/__tests__"]
   },
   "dependencies": {
     "@glennsl/bs-json": "^1.2.0",
@@ -82,6 +74,7 @@
     "shortid": "^2.2.8",
     "vega": "^3.3.1",
     "vrroom": "github:glennsl/vrroom",
-    "webpack-cli": "^2.0.15"
+    "webpack-cli": "^2.1.3",
+    "webpack-serve": "^0.3.2"
   }
 }

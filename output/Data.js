@@ -20,9 +20,9 @@ function load(which) {
   }
 }
 
-var treeKey = "reason-react-todos";
+var treeKey = "tree-ls";
 
-var basePathKey = "reason-react-path";
+var basePathKey = "crumbs-ls";
 
 exports.treeKey = treeKey;
 exports.basePathKey = basePathKey;
