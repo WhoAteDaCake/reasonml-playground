@@ -27,7 +27,7 @@ module.exports = {
     contentBase: './example',
     hot: true,
     watchOptions: {
-      aggregateTimeout: 2000,
+      aggregateTimeout: 1000,
       poll: 1000
     }
   },
