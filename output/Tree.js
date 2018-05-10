@@ -30,6 +30,15 @@ function createEntry(content, path) {
         ];
 }
 
+function createRoot(content) {
+  return /* record */[
+          /* content */content,
+          /* id */Shortid.generate(),
+          /* path : [] */0,
+          /* children : [] */0
+        ];
+}
+
 function appendChild(child, parent) {
   return /* record */[
           /* content */parent[/* content */0],
@@ -91,6 +100,7 @@ exports.eq = eq;
 exports.hasChildren = hasChildren;
 exports.parentPath = parentPath;
 exports.createEntry = createEntry;
+exports.createRoot = createRoot;
 exports.appendChild = appendChild;
 exports.removeChild = removeChild;
 exports.updateContent = updateContent;

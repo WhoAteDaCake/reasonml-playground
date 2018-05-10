@@ -23,6 +23,13 @@ let createEntry = (content: string, path: path) : entry => {
   {content, id, path: List.append(path, [id]), children: []};
 };
 
+let createRoot = (content: string) : entry => {
+  content,
+  id: Utils.sid(),
+  path: [],
+  children: []
+};
+
 let appendChild = (child: entry, parent: entry) : entry => {
   ...parent,
   children: List.append(parent.children, [child])
@@ -33,9 +40,9 @@ let removeChild = (id: string, parent: entry) : entry => {
   children: List.filter(child => child.id != id, parent.children)
 };
 
-let updateContent = (content: string, entry: entry): entry => {
+let updateContent = (content: string, entry: entry) : entry => {
   ...entry,
-  content,
+  content
 };
 
 let rec deepUpdate = (fn: update, entry: entry, path: path) : entry =>

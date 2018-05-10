@@ -13,8 +13,7 @@ type action =
 let rootEntry =
   switch (Data.load(Data.treeKey)) {
   | None =>
-    Tree.createEntry("Home", []) |> Tree.appendChild(Tree.createEntry("", []))
-  /* | None => Tree.addChild(Tree.makeRoot("Home"), [], "") */
+    Tree.createRoot("Home") |> Tree.appendChild(Tree.createEntry("", []))
   | Some(entry) => entry
   };
 
