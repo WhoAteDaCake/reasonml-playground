@@ -2,57 +2,10 @@
 
 var List = require("bs-platform/lib/js/list.js");
 var Curry = require("bs-platform/lib/js/curry.js");
-var Utils = require("./Utils.js");
+var ListRe = require("./utils/ListRe.js");
 var Shortid = require("shortid");
 
-function walk(updator, entry, path) {
-  if (path) {
-    var rest = path[1];
-    var id = path[0];
-    var updatedChildren = List.map((function (child) {
-            if (child[/* id */1] === id) {
-              return walk(updator, child, rest);
-            } else {
-              return child;
-            }
-          }), entry[/* children */3]);
-    return /* record */[
-            /* content */entry[/* content */0],
-            /* id */entry[/* id */1],
-            /* path */entry[/* path */2],
-            /* children */updatedChildren
-          ];
-  } else {
-    return Curry._1(updator, entry);
-  }
-}
-
-function find(_entry, _path) {
-  while(true) {
-    var path = _path;
-    var entry = _entry;
-    if (path) {
-      var id = path[0];
-      var childOpt = Utils.find((function(id){
-          return function (child) {
-            return +(child[/* id */1] === id);
-          }
-          }(id)), entry[/* children */3]);
-      if (childOpt) {
-        _path = path[1];
-        _entry = childOpt[0];
-        continue ;
-        
-      } else {
-        return /* None */0;
-      }
-    } else {
-      return /* Some */[entry];
-    }
-  };
-}
-
-function isSame(e1, e2) {
+function eq(e1, e2) {
   return +(e1[/* id */1] === e2[/* id */1]);
 }
 
@@ -61,10 +14,10 @@ function hasChildren(entry) {
 }
 
 function parentPath(entry) {
-  return Utils.withoutLast(entry[/* path */2]);
+  return ListRe.butLast(entry[/* path */2]);
 }
 
-function makeEntry(content, path) {
+function createEntry(content, path) {
   var id = Shortid.generate();
   return /* record */[
           /* content */content,
@@ -73,15 +26,6 @@ function makeEntry(content, path) {
                 id,
                 /* [] */0
               ]),
-          /* children : [] */0
-        ];
-}
-
-function makeRoot(content) {
-  return /* record */[
-          /* content */content,
-          /* id */Shortid.generate(),
-          /* path : [] */0,
           /* children : [] */0
         ];
 }
@@ -109,169 +53,47 @@ function removeChild(id, parent) {
         ];
 }
 
-function addChild(root, path, content) {
-  var child = makeEntry(content, path);
-  return walk((function (param) {
-                return appendChild(child, param);
-              }), root, path);
+function updateContent(content, entry) {
+  return /* record */[
+          /* content */content,
+          /* id */entry[/* id */1],
+          /* path */entry[/* path */2],
+          /* children */entry[/* children */3]
+        ];
 }
 
-function withoutChild(root, child) {
-  var partial_arg = child[/* id */1];
-  return walk((function (param) {
-                return removeChild(partial_arg, param);
-              }), root, Utils.withoutLast(child[/* path */2]));
-}
-
-function lastChild(_item) {
-  while(true) {
-    var item = _item;
-    if (List.length(item[/* children */3]) === 0) {
-      return item;
-    } else {
-      _item = Utils.last(item[/* children */3]);
-      continue ;
-      
-    }
-  };
-}
-
-function walkUp(root, item) {
-  var match = find(root, Utils.withoutLast(item[/* path */2]));
-  if (match) {
-    var parent = match[0];
-    var match$1 = Utils.splitOn((function (param) {
-            return isSame(item, param);
-          }), parent[/* children */3]);
-    var left = match$1[0];
-    if (List.length(left) !== 0) {
-      return lastChild(Utils.last(left));
-    } else {
-      return parent;
-    }
+function deepUpdate(fn, entry, path) {
+  if (path) {
+    var rest = path[1];
+    var id = path[0];
+    return /* record */[
+            /* content */entry[/* content */0],
+            /* id */entry[/* id */1],
+            /* path */entry[/* path */2],
+            /* children */List.map((function (child) {
+                    if (child[/* id */1] === id) {
+                      return deepUpdate(fn, child, rest);
+                    } else {
+                      return child;
+                    }
+                  }), entry[/* children */3])
+          ];
   } else {
-    return item;
+    return Curry._1(fn, entry);
   }
 }
 
-function walkUpWhile(predicate, root, _item, _visited) {
-  while(true) {
-    var visited = _visited;
-    var item = _item;
-    var didVisit = /* :: */[
-      item,
-      visited
-    ];
-    var match = find(root, Utils.withoutLast(item[/* path */2]));
-    if (match) {
-      var parent = match[0];
-      if (Curry._3(predicate, root, parent, didVisit)) {
-        return /* tuple */[
-                parent,
-                didVisit
-              ];
-      } else {
-        _visited = didVisit;
-        _item = parent;
-        continue ;
-        
-      }
-    } else {
-      return /* tuple */[
-              item,
-              didVisit
-            ];
-    }
-  };
+function updateParent(fn, root, entry) {
+  return deepUpdate(fn, root, ListRe.butLast(entry[/* path */2]));
 }
 
-function shouldStop(root, entry, visited) {
-  if (isSame(entry, root)) {
-    return /* true */1;
-  } else {
-    var partial_arg = List.hd(visited);
-    var match = Utils.splitOn((function (param) {
-            return isSame(partial_arg, param);
-          }), entry[/* children */3]);
-    return +(List.length(match[2]) !== 0);
-  }
-}
-
-function walkDown(root, item) {
-  if (hasChildren(item)) {
-    return List.hd(item[/* children */3]);
-  } else {
-    var match = find(root, Utils.withoutLast(item[/* path */2]));
-    if (match) {
-      var match$1 = Utils.splitOn((function (param) {
-              return isSame(item, param);
-            }), match[0][/* children */3]);
-      var right = match$1[2];
-      if (List.length(right) !== 0) {
-        return List.hd(right);
-      } else {
-        var match$2 = walkUpWhile(shouldStop, root, item, /* [] */0);
-        var found = match$2[0];
-        if (isSame(found, root)) {
-          return item;
-        } else {
-          var partial_arg = List.hd(match$2[1]);
-          var match$3 = Utils.splitOn((function (param) {
-                  return isSame(partial_arg, param);
-                }), found[/* children */3]);
-          return List.hd(match$3[2]);
-        }
-      }
-    } else {
-      return item;
-    }
-  }
-}
-
-function insertAfter(prev, item, root) {
-  return walk((function (parent) {
-                var match = Utils.splitOn((function (param) {
-                        return isSame(prev, param);
-                      }), parent[/* children */3]);
-                return /* record */[
-                        /* content */parent[/* content */0],
-                        /* id */parent[/* id */1],
-                        /* path */parent[/* path */2],
-                        /* children */List.concat(/* :: */[
-                              match[0],
-                              /* :: */[
-                                match[1],
-                                /* :: */[
-                                  /* :: */[
-                                    item,
-                                    /* [] */0
-                                  ],
-                                  /* :: */[
-                                    match[2],
-                                    /* [] */0
-                                  ]
-                                ]
-                              ]
-                            ])
-                      ];
-              }), root, Utils.withoutLast(prev[/* path */2]));
-}
-
-exports.walk = walk;
-exports.find = find;
-exports.isSame = isSame;
+exports.eq = eq;
 exports.hasChildren = hasChildren;
 exports.parentPath = parentPath;
-exports.makeEntry = makeEntry;
-exports.makeRoot = makeRoot;
+exports.createEntry = createEntry;
 exports.appendChild = appendChild;
 exports.removeChild = removeChild;
-exports.addChild = addChild;
-exports.withoutChild = withoutChild;
-exports.lastChild = lastChild;
-exports.walkUp = walkUp;
-exports.walkUpWhile = walkUpWhile;
-exports.shouldStop = shouldStop;
-exports.walkDown = walkDown;
-exports.insertAfter = insertAfter;
-/* Utils Not a pure module */
+exports.updateContent = updateContent;
+exports.deepUpdate = deepUpdate;
+exports.updateParent = updateParent;
+/* shortid Not a pure module */
