@@ -6,11 +6,11 @@ var ListRe = require("./utils/ListRe.js");
 var Shortid = require("shortid");
 
 function eq(e1, e2) {
-  return +(e1[/* id */1] === e2[/* id */1]);
+  return e1[/* id */1] === e2[/* id */1];
 }
 
 function hasChildren(entry) {
-  return +(List.length(entry[/* children */3]) !== 0);
+  return List.length(entry[/* children */3]) !== 0;
 }
 
 function parentPath(entry) {
@@ -57,7 +57,7 @@ function removeChild(id, parent) {
           /* id */parent[/* id */1],
           /* path */parent[/* path */2],
           /* children */List.filter((function (child) {
-                    return +(child[/* id */1] !== id);
+                    return child[/* id */1] !== id;
                   }))(parent[/* children */3])
         ];
 }

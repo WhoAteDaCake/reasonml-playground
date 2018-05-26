@@ -1,6 +1,7 @@
 let focus = (_id: string) => ();
 
 module ReactEvent = {
-  let keyboardTarget = event =>
-    ReactEventRe.Form.target(event) |> Webapi.Dom.Element.unsafeAsHtmlElement;
+  let targetValue = element : string => (element |> ReactDOMRe.domElementToObj)##value;
+  let keyboardValue = event =>
+    ReactEventRe.Keyboard.target(event) |> targetValue;
 };

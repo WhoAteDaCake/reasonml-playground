@@ -29,11 +29,15 @@ let renderChildren = (item: Tree.entry, render) =>
 let component = ReasonReact.reducerComponent("App");
 
 let make = _children => {
-  let handleKey = (item: Tree.entry, event, _self) => ();
-  /* Js.log(event); */
+  let handleKey = (item: Tree.entry, event, _self) => {
+    let code = ReactEventRe.Keyboard.which(event);
+    let content = DomUtils.ReactEvent.keyboardValue(event);
+    Js.log((content, code));
+    ();
+  };
   let handleChange = (item: Tree.entry, event, self) => {
     let content =
-      DomUtils.ReactEvent.keyboardTarget(event) |> Webapi.Dom.HtmlElement.value;
+      ReactEventRe.Form.target(event) |> DomUtils.ReactEvent.targetValue;
     self.ReasonReact.send(
       Root(
         Tree.deepUpdate(
