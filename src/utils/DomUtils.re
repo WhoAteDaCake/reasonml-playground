@@ -1,4 +1,8 @@
-let focus = (_id: string) => ();
+let focus = (id: string) => {
+  Js.log(id);
+  let node = Webapi.Dom.Document.getElementById(id);
+  Js.log(node);
+};
 
 module ReactEvent = {
   let targetValue = element : string => (element |> ReactDOMRe.domElementToObj)##value;

@@ -1,6 +1,6 @@
 {
   "name": "reason-react-rollup-starter-kit",
-  "bsc-flags": ["-bs-no-version-header", "-bs-super-errors"],
+  "bsc-flags": ["-bs-no-version-header", "-bs-super-errors", "-bs-g"],
   "reason": {
     "react-jsx": 2
   },

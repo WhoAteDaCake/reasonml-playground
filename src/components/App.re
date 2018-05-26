@@ -6,8 +6,7 @@ type state = {
 
 type action =
   | Root(Tree.entry)
-  | Focus(Tree.entry)
-  | FocusedRoot(Tree.entry, Tree.entry)
+  | FocusedRoot(Tree.entry, option(Tree.entry))
   | UpdateBasePath(list(string));
 
 let rootEntry =
@@ -29,11 +28,24 @@ let renderChildren = (item: Tree.entry, render) =>
 let component = ReasonReact.reducerComponent("App");
 
 let make = _children => {
-  let handleKey = (item: Tree.entry, event, _self) => {
-    let code = ReactEventRe.Keyboard.which(event);
-    let content = DomUtils.ReactEvent.keyboardValue(event);
-    Js.log((content, code));
-    ();
+  let handleKey = (item: Tree.entry, event, self) => {
+    /* let code = ReactEventRe.Keyboard.which(event);
+       let content = DomUtils.ReactEvent.keyboardValue(event); */
+    let (currentRoot, currentFocus) = (
+      self.ReasonReact.state.root,
+      self.ReasonReact.state.focus
+    );
+    let (root, focus) =
+      switch (ReactEventRe.Keyboard.which(event)) {
+      | 13 =>
+        /* Enter */
+        let child = Tree.createEntry("", Tree.parentPath(item));
+        let root = Tree.insertAfter(item, child, currentRoot);
+        (root, Some(child));
+      | _ => (currentRoot, currentFocus)
+      };
+    Js.log(("pre-send", focus));
+    self.ReasonReact.send(FocusedRoot(root, focus));
   };
   let handleChange = (item: Tree.entry, event, self) => {
     let content =
@@ -54,18 +66,20 @@ let make = _children => {
     reducer: (action: action, state) =>
       switch action {
       | Root(root) => ReasonReact.Update({...state, root})
-      | Focus(focus) => ReasonReact.Update({...state, focus: Some(focus)})
       | FocusedRoot(root, focus) =>
-        ReasonReact.Update({...state, root, focus: Some(focus)})
+        Js.log(("reducer", focus));
+        ReasonReact.Update({...state, root, focus});
       | UpdateBasePath(basePath) => ReasonReact.Update({...state, basePath})
       },
-    didUpdate: ({oldSelf, newSelf}) =>
+    didUpdate: ({oldSelf, newSelf}) => {
+      Js.log(newSelf.state.focus);
       if (! Belt.Option.eq(oldSelf.state.focus, newSelf.state.focus, Tree.eq)) {
         switch newSelf.state.focus {
         | Some(entry) => DomUtils.focus(entry.id)
         | None => ()
         };
-      },
+      };
+    },
     render: self => {
       let rec renderItem = (item: Tree.entry) =>
         <div key=item.id className="row">

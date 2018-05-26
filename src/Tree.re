@@ -65,6 +65,16 @@ let rec deepUpdate = (fn: update, entry: entry, path: path) : entry =>
 
 let updateParent = (fn: update, root: entry, entry: entry) : entry =>
   deepUpdate(fn, root, parentPath(entry));
+
+let insertAfter = (prev: entry, item: entry, root: entry) : entry =>
+  deepUpdate(
+    parent => {
+      let (left, me, right) = Utils.splitOn(eq(prev), parent.children);
+      {...parent, children: List.concat([left, me, [item], right])};
+    },
+    root,
+    parentPath(prev)
+  );
 /*
  let rec find = (entry: entry, path: path) : option(entry) =>
    switch path {

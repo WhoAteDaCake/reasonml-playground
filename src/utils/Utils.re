@@ -1,4 +1,16 @@
 [@bs.module "shortid"] external sid : unit => string = "generate";
+
+let splitOn = (predicate, list) =>
+  List.fold_left(
+    ((left, middle, right), item) =>
+      switch (predicate(item), List.length(middle) !== 0) {
+      | (true, false) => (left, [item], right)
+      | (false, false) => (List.append(left, [item]), middle, right)
+      | _ => (left, middle, List.append(right, [item]))
+      },
+    ([], [], []),
+    list
+  );
 /*
  let noProps = {"key": sid()};
 
@@ -41,15 +53,4 @@
      Some(List.nth(result, 0));
    };
  };
-
- let splitOn = (predicate, list) =>
-   List.fold_left(
-     ((left, middle, right), item) =>
-       switch (predicate(item), List.length(middle) !== 0) {
-       | (true, false) => (left, [item], right)
-       | (false, false) => (List.append(left, [item]), middle, right)
-       | _ => (left, middle, List.append(right, [item]))
-       },
-     ([], [], []),
-     list
-   ); */
+ */
