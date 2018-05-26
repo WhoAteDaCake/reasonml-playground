@@ -63,23 +63,24 @@ let make = _children => {
   {
     ...component,
     initialState: () => {root: rootEntry, focus: None, basePath: []},
-    reducer: (action: action, state) =>
+    reducer: (action: action, state) => {
+      switch action {
+      | FocusedRoot(root, focus) => Js.log(("in-switch", focus))
+      | _ => Js.log(("matched-all", action))
+      };
       switch action {
       | Root(root) => ReasonReact.Update({...state, root})
-      | FocusedRoot(root, focus) =>
-        Js.log(("reducer", focus));
-        ReasonReact.Update({...state, root, focus});
+      | FocusedRoot(root, focus) => ReasonReact.Update({...state, root, focus})
       | UpdateBasePath(basePath) => ReasonReact.Update({...state, basePath})
-      },
-    didUpdate: ({oldSelf, newSelf}) => {
-      Js.log(newSelf.state.focus);
+      };
+    },
+    didUpdate: ({oldSelf, newSelf}) =>
       if (! Belt.Option.eq(oldSelf.state.focus, newSelf.state.focus, Tree.eq)) {
         switch newSelf.state.focus {
         | Some(entry) => DomUtils.focus(entry.id)
         | None => ()
         };
-      };
-    },
+      },
     render: self => {
       let rec renderItem = (item: Tree.entry) =>
         <div key=item.id className="row">
